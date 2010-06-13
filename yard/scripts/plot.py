@@ -4,6 +4,7 @@ and accumulation curves."""
 import sys
 
 from collections import defaultdict
+from itertools import cycle
 from yard.roc import *
 
 class ROCPlotterApplication(object):
