@@ -103,21 +103,20 @@ class Curve(object):
         """
         import matplotlib.pyplot as plt
 
+        # Extract the keyword arguments handled here
+        kwds_extra = dict(xlabel=None, ylabel=None, title=None)
+        for name in kwds_extra.keys():
+            if name in kwds:
+                kwds_extra[name] = kwds[name]
+                del kwds[name]
+
         # Construct the figure
         fig = plt.figure(*args, **kwds)
 
-        # Create the axes, set the axis labels
+        # Create the axes, set the axis labels and the plot title
         axes = fig.add_subplot(111)
-
-        if "xlabel" in kwds:
-            axes.set_xlabel(kwds["xlabel"])
-            del kwds["xlabel"]
-        if "ylabel" in kwds:
-            axes.set_ylabel(kwds["ylabel"])
-            del kwds["ylabel"]
-        if "title" in kwds:
-            axes.set_title(title)
-            del kwds["title"]
+        for name, value in kwds_extra.iteritems():
+            getattr(axes, "set_%s" % name)(value)
 
         # axes.set_xbound(0.0, 1.0)
         # axes.set_ybound(0.0, 1.0)
@@ -152,7 +151,7 @@ class Curve(object):
         means no legend.
         """
         # Plot the points
-        xs, ys = zip(*self.get_points())
+        xs, ys = zip(*self.points)
         curve = axes.plot(xs, ys, style)
 
         # Create the legend
@@ -281,8 +280,8 @@ class BinaryClassifierPerformanceCurve(Curve):
             kwds["ylabel"] = known_labels.get(self.y_method_name,
                                               self.y_method_name)
 
-        super(BinaryClassifierPerformanceCurve, self).get_empty_figure(
-                *args, **kwds)
+        return super(BinaryClassifierPerformanceCurve, self).\
+                     get_empty_figure(*args, **kwds)
 
 
 class ROCCurve(BinaryClassifierPerformanceCurve):
