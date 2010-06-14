@@ -15,6 +15,8 @@ __email__   = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
+from itertools import izip
+from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
