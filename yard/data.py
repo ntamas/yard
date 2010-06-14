@@ -52,29 +52,58 @@ class BinaryConfusionMatrix(object):
         (self.tn, self.fn), (self.fp, self.tp) = data
 
     def accuracy(self):
-        """Returns the accuracy"""
+        """Returns the accuracy.
+
+        Example::
+
+            >>> matrix = BinaryConfusionMatrix(tp=77, fp=77, fn=23, tn=23)
+            >>> matrix.accuracy()
+            0.5
+        """
         num = self.tp + self.tn
         den = num + self.fp + self.fn
         return num / float(den)
 
     def fdn(self):
-        """Returns the fraction of data classified as negative (FDP)"""
+        """Returns the fraction of data classified as negative (FDN)
+        
+        Example::
+
+            >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
+            >>> print round(matrix.fdn(), 6)
+            0.545
+        """
         num = self.fn + self.tn
         den = num + self.fp + self.tp
         return num / float(den)
 
     def fdp(self):
-        """Returns the fraction of data classified as positive (FDP)"""
+        """Returns the fraction of data classified as positive (FDP)
+        
+        Example::
+
+            >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
+            >>> print round(matrix.fdp(), 6)
+            0.455
+        """
         num = self.fp + self.tp
         den = num + self.fn + self.tn
         return num / float(den)
 
     def fdr(self):
-        """Returns the false discovery date (FDR)"""
+        """Returns the false discovery date (FDR)
+        
+        Example::
+
+            >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
+            >>> print round(matrix.fdr(), 6)
+            0.307692
+        """
         return self.fp / float(self.fp + self.tp)
 
     def fpr(self):
-        """Returns the false positive rate (FPR)"""
+        """Returns the false positive rate (FPR)
+        """
         return self.fp / float(self.fp + self.tn)
 
     def f_score(self, f=1.0):
@@ -98,7 +127,14 @@ class BinaryConfusionMatrix(object):
         return self.tn / float(self.tn + self.fn)
 
     def odds_ratio(self):
-        """Returns the odds ratio"""
+        """Returns the odds ratio.
+        
+        Example::
+
+            >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
+            >>> print round(matrix.odds_ratio(), 3)
+            4.378
+        """
         num = self.tp * self.tn
         den = self.fp * self.fn
         if den == 0:
@@ -184,7 +220,18 @@ class BinaryClassifierData(object):
         return point[0], point[1] > 0
 
     def get_confusion_matrix(self, threshold):
-        """Returns the confusion matrix at a given threshold"""
+        """Returns the confusion matrix at a given threshold
+        
+        Example::
+            
+            >>> outcomes = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+            >>> expected = [0, 0, 0, 1, 0, 1, 1, 1, 1]
+            >>> data = BinaryClassifierData(zip(outcomes, expected))
+            >>> data.get_confusion_matrix(0.2)
+            BinaryConfusionMatrix(tp=5, fp=3, fn=0, tn=1)
+            >>> data.get_confusion_matrix(0.75)
+            BinaryConfusionMatrix(tp=2, fp=0, fn=3, tn=4)
+        """
         result = [[0, 0], [0, 0]]
         # Find the index in the data where the predictions start to
         # exceed the threshold

@@ -17,6 +17,16 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
             BinaryConfusionMatrix(tp=100, fp=0, fn=0, tn=100)
         ]
 
+    def test_fdn(self):
+        expected = [0.545, 0.23, 0.44, 0.56, 0.5]
+        for matrix, exp in zip(self.matrices, expected):
+            self.assertAlmostEqual(matrix.fdn(), exp, 2)
+
+    def test_fdp(self):
+        expected = [0.455, 0.77, 0.56, 0.44, 0.5]
+        for matrix, exp in zip(self.matrices, expected):
+            self.assertAlmostEqual(matrix.fdp(), exp, 2)
+
     def test_tpr(self):
         expected = [0.63, 0.77, 0.24, 0.76, 1.0]
         for matrix, exp in zip(self.matrices, expected):
@@ -26,6 +36,11 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
         expected = [0.28, 0.77, 0.88, 0.12, 0.0]
         for matrix, exp in zip(self.matrices, expected):
             self.assertAlmostEqual(matrix.fpr(), exp, 2)
+
+    def test_fdr(self):
+        expected = [0.30769, 0.5, 0.78571, 0.13636, 0.0]
+        for matrix, exp in zip(self.matrices, expected):
+            self.assertAlmostEqual(matrix.fdr(), exp, 2)
 
     def test_accuracy(self):
         expected = [0.675, 0.50, 0.18, 0.82, 1.0]
@@ -37,6 +52,7 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
         for matrix, exp in zip(self.matrices, expected):
             self.assertAlmostEqual(matrix.odds_ratio(), exp, 2)
         self.assertEquals(str(self.matrices[4].odds_ratio()), "inf")
+
 
 class BinaryClassifierDataTest(unittest.TestCase):
     def setUp(self):
