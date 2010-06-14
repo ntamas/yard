@@ -9,7 +9,8 @@ untransformed and transformed X axes and calculate AUC (area under
 curve) statistics.
 """
 
-from yard.roc import *
+from yard.data import *
+from yard.curve import *
 
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"

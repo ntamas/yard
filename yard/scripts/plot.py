@@ -4,8 +4,9 @@ and accumulation curves."""
 import sys
 
 from collections import defaultdict
-from itertools import cycle
-from yard.roc import *
+from itertools import cycle, izip
+from yard.data import BinaryClassifierData
+from yard.curve import ROCCurve, AccumulationCurve, PrecisionRecallCurve
 
 class ROCPlotterApplication(object):
     """\
@@ -26,6 +27,10 @@ class ROCPlotterApplication(object):
     def __init__(self):
         self.parser = self.create_parser()
         self.log = self.create_logger()
+        self.curve_class = None
+        self.cols = None
+        self.sep = None
+        self.options = None
 
     def create_logger(self):
         """Creates the logger object for the application"""
@@ -174,7 +179,7 @@ class ROCPlotterApplication(object):
 
             parts = line.split(sep)
             try:
-                cls = int(float(parts[cols[0]]))
+                int(float(parts[cols[0]]))
             except (IndexError, ValueError):
                 # This is a header row
                 if seen_header:
