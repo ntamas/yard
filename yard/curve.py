@@ -17,6 +17,8 @@ __license__ = "MIT"
 
 from itertools import izip
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
+from yard.transform import ExponentialTransformation
+from yard.utils import axis_label
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
@@ -92,12 +94,8 @@ class Curve(object):
         here):
 
             - `title`: the title of the figure.
-
-            - `xlabel`: the label of the X axis. If omitted, we will try to
-              infer it from `self.x_method_name`.
-
-            - `ylabel`: the label of the Y axis. If omitted, we will try to
-              infer it from `self.y_method_name`.
+            - `xlabel`: the label of the X axis.
+            - `ylabel`: the label of the Y axis.
 
         These must be given as keyword arguments.
         """
@@ -275,10 +273,8 @@ class BinaryClassifierPerformanceCurve(Curve):
         except these (which are interpreted here):
 
             - `title`: the title of the figure.
-
             - `xlabel`: the label of the X axis. If omitted, we will
               try to infer it from `self.x_func`.
-
             - `ylabel`: the label of the Y axis. If omitted, we will
               try to infer it from `self.y_func`.
 
@@ -334,13 +330,8 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
         except these (which are interpreted here):
             
             - `title`: the title of the figure.
-
-            - `xlabel`: the label of the X axis. If omitted, we will
-              try to infer it from `self.x_method_name`.
-
-            - `ylabel`: the label of the Y axis. If omitted, we will
-              try to infer it from `self.y_method_name`.
-
+            - `xlabel`: the label of the X axis.
+            - `ylabel`: the label of the Y axis.
             - `no_discrimination_line`: if ``True``, the no discrimination
               line will be drawn. If ``False``, it won't be drawn. If
               a string, it is interpreted as a line style by
@@ -413,4 +404,82 @@ class AccumulationCurve(BinaryClassifierPerformanceCurve):
         """
         super(PrecisionRecallCurve, self).__init__(data,
             BinaryConfusionMatrix.fdp, BinaryConfusionMatrix.tpr)
+
+
+class CROCCurve(BinaryClassifierPerformanceCurve):
+    """Class representing a concentrated ROC curve.
+    
+    A CROC curve plots the true positive rate on the Y axis versus
+    the false positive rate on the X axis, but it transforms the X axis
+    in order to give more emphasis to the left hand side of the X axis
+    (close to zero).
+    """
+
+    def __init__(self, data, alpha = 7):
+        """Constructs a CROC curve from the given dataset.
+
+        The dataset must contain ``(x, y)`` pairs where `x` is a predicted
+        value and `y` defines whether the example is positive or negative.
+        When `y` is less than or equal to zero, it is considered a negative
+        example, otherwise it is positive. ``False`` also means a negative
+        and ``True`` also means a positive example. The dataset can also
+        be an instance of `BinaryClassifierData`.
+
+        `alpha` is the magnification factor that defines how much do we want
+        to focus on the left side of the X axis. The default `alpha`=7
+        transforms a FPR of 0.1 to 0.5.
+        """
+        self._transformation = ExponentialTransformation(alpha)
+        super(CROCCurve, self).__init__(data, self._transformed_fpr,
+            BinaryConfusionMatrix.tpr)
+
+    @axis_label("Transformed false positive rate")
+    def _transformed_fpr(self, matrix):
+        """Internal function that returns the transformed FPR value from the
+        given confusion matrix that should be plotted on the X axis."""
+        return self._transformation(matrix.fpr())
+
+    def get_empty_figure(self, *args, **kwds):
+        """Returns an empty `matplotlib.Figure` that can be used
+        to show the ROC curve. The arguments of this function are
+        passed on intact to the constructor of `matplotlib.Figure`,
+        except these (which are interpreted here):
+            
+            - `title`: the title of the figure.
+            - `xlabel`: the label of the X axis.
+            - `ylabel`: the label of the Y axis.
+            - `no_discrimination_curve`: if ``True``, the no discrimination
+              curve will be drawn. If ``False``, it won't be drawn. If
+              a string, it is interpreted as a line style by
+              ``matplotlib`` and this line style will be used to draw
+              the no discrimination line. If it is a tuple, the first
+              element of the tuple will be interpreted as the color
+              and the second will be interpreted as the line style
+              by ``matplotlib``.
+
+        These must be given as keyword arguments.
+        """
+        if "no_discrimination_curve" in kwds:
+            no_discrimination_curve = kwds["no_discrimination_curve"]
+            del kwds["no_discrimination_curve"]
+        else:
+            no_discrimination_curve = ("#444444", ":")
+
+        # Create the figure by calling the superclass
+        fig = super(CROCCurve, self).get_empty_figure(*args, **kwds)
+        axes = fig.get_axes()[0]
+
+        # Plot the no-discrimination curve
+        if no_discrimination_curve:
+            ys = [y / 100. for y in xrange(101)]
+            xs = [self._transformation(y) for y in ys]
+            if isinstance(no_discrimination_curve, (tuple, list)):
+                color, linestyle = no_discrimination_curve
+                axes.plot(xs, ys, color=color, linestyle=linestyle)
+            else:
+                axes.plot(xs, ys, no_discrimination_curve)
+
+        return fig
+
+
 

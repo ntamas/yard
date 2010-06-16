@@ -6,7 +6,8 @@ import sys
 from collections import defaultdict
 from itertools import cycle, izip
 from yard.data import BinaryClassifierData
-from yard.curve import ROCCurve, AccumulationCurve, PrecisionRecallCurve
+from yard.curve import ROCCurve, CROCCurve, AccumulationCurve, \
+                       PrecisionRecallCurve
 
 class ROCPlotterApplication(object):
     """\
@@ -70,18 +71,15 @@ class ROCPlotterApplication(object):
                 help="saves the plot to the given FILE instead of showing it",
                 default=None)
         parser.add_option("-t", "--curve-type", dest="curve_type",
-                metavar="TYPE", choices=("roc", "pr", "ac"),
+                metavar="TYPE", choices=("roc", "pr", "ac", "croc"),
                 default="roc", 
                 help="sets the TYPE of the curve to be plotted "
-                     "(roc, pr or ac)")
+                     "(roc, pr, ac or croc)")
         parser.add_option("-v", "--verbose", dest="verbose",
                 action="store_true", default=False,
                 help="verbose mode, shows progress while calculating curves")
         parser.add_option("--show-auc", dest="show_auc", action="store_true",
                 default=False, help="shows the AUC scores in the legend")
-        parser.add_option("--dont-coarsen", dest="coarsen_curves",
-                action="store_false", default=True,
-                help="don't coarsen curves having more than 2000 points")
 
         return parser
 
@@ -133,8 +131,11 @@ class ROCPlotterApplication(object):
 
         # Get the type of the curve to be plotted
         try:
-            self.curve_class = dict(roc=ROCCurve, ac=AccumulationCurve, \
-                    pr=PrecisionRecallCurve)[self.options.curve_type]
+            self.curve_class = dict(
+                    roc=ROCCurve, croc=CROCCurve,
+                    ac=AccumulationCurve,
+                    pr=PrecisionRecallCurve
+            )[self.options.curve_type]
         except KeyError:
             self.parser.error("Unknown curve type: %s" % self.options.curve_type)
 
@@ -225,9 +226,6 @@ class ROCPlotterApplication(object):
                 labels.append("%s, AUC=%.4f" % (key, aucs[-1]))
             else:
                 labels.append(key)
-
-            if self.options.coarsen_curves:
-                curve.coarsen(until=2000)
 
             if not fig:
                 fig = curve.get_empty_figure()
