@@ -6,6 +6,8 @@ sensitivity, specificity, precision, recall, TPR, FPR and such.
 from bisect import bisect_left
 from itertools import izip
 
+from yard.utils import axis_label
+
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
@@ -51,6 +53,7 @@ class BinaryConfusionMatrix(object):
             raise ValueError("confusion matrix must have 2 columns")
         (self.tn, self.fn), (self.fp, self.tp) = data
 
+    @axis_label("Accuracy")
     def accuracy(self):
         """Returns the accuracy.
 
@@ -64,6 +67,7 @@ class BinaryConfusionMatrix(object):
         den = num + self.fp + self.fn
         return num / float(den)
 
+    @axis_label("Fraction of data classified negative")
     def fdn(self):
         """Returns the fraction of data classified as negative (FDN)
         
@@ -77,6 +81,7 @@ class BinaryConfusionMatrix(object):
         den = num + self.fp + self.tp
         return num / float(den)
 
+    @axis_label("Fraction of data classified positive")
     def fdp(self):
         """Returns the fraction of data classified as positive (FDP)
         
@@ -90,6 +95,7 @@ class BinaryConfusionMatrix(object):
         den = num + self.fn + self.tn
         return num / float(den)
 
+    @axis_label("False discovery rate")
     def fdr(self):
         """Returns the false discovery date (FDR)
         
@@ -101,11 +107,13 @@ class BinaryConfusionMatrix(object):
         """
         return self.fp / float(self.fp + self.tp)
 
+    @axis_label("False positive rate")
     def fpr(self):
         """Returns the false positive rate (FPR)
         """
         return self.fp / float(self.fp + self.tn)
 
+    @axis_label("F-score")
     def f_score(self, f=1.0):
         """Returns the F-score"""
         sq = float(f*f)
@@ -113,6 +121,7 @@ class BinaryConfusionMatrix(object):
         num = sq1 * self.tp
         return num / (num + sq * self.fn + self.fp)
 
+    @axis_label("Matthews correlation coefficient")
     def mcc(self):
         """Returns the Matthews correlation coefficient"""
         num = self.tp * self.tn - self.fp * self.fn
@@ -122,10 +131,12 @@ class BinaryConfusionMatrix(object):
         den *= (self.tn + self.fn)
         return num / (den ** 0.5)
 
+    @axis_label("Negative predictive value")
     def npv(self):
         """Returns the negative predictive value (NPV)"""
         return self.tn / float(self.tn + self.fn)
 
+    @axis_label("Odds ratio")
     def odds_ratio(self):
         """Returns the odds ratio.
         
@@ -141,24 +152,23 @@ class BinaryConfusionMatrix(object):
             return float('nan') if num == 0 else float('inf')
         return num / float(den)
 
+    @axis_label("Precision")
     def precision(self):
         """Returns the precision, a.k.a. the positive predictive value (PPV)"""
         try:
             return self.tp / float(self.tp + self.fp)
         except ZeroDivisionError:
             return 1.0
-    ppv = precision
 
-    def sensitivity(self):
-        """Returns the sensitivity, a.k.a. the true negative rate (TPR)"""
+    @axis_label("Recall")
+    def recall(self):
+        """Returns the recall, a.k.a. the true positive rate (TPR) or sensitivity"""
         return self.tp / float(self.tp + self.fn)
-    tpr = sensitivity
-    recall = sensitivity
 
-    def specificity(self):
-        """Returns the specificity, a.k.a. the true negative rate (TNR)"""
+    @axis_label("True negative rate")
+    def tnr(self):
+        """Returns the true negative rate (TNR), a.k.a. specificity"""
         return self.tn / float(self.fp + self.tn)
-    tnr = specificity
 
     def __eq__(self, other):
         return self.tp == other.tp and self.tn == other.tn and \
@@ -176,6 +186,11 @@ class BinaryConfusionMatrix(object):
         obs, exp = coords
         self._data[obs][exp] = value
 
+    # Some aliases
+    ppv = precision
+    sensitivity = recall
+    specificity = tnr
+    tpr = recall
 
     
 class BinaryClassifierData(object):

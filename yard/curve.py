@@ -116,7 +116,8 @@ class Curve(object):
         # Create the axes, set the axis labels and the plot title
         axes = fig.add_subplot(111)
         for name, value in kwds_extra.iteritems():
-            getattr(axes, "set_%s" % name)(value)
+            if value is not None:
+                getattr(axes, "set_%s" % name)(value)
 
         # axes.set_xbound(0.0, 1.0)
         # axes.set_ybound(0.0, 1.0)
@@ -189,6 +190,24 @@ class Curve(object):
         """
         self.get_figure(*args, **kwds).show()
 
+    def transform(self, transformation):
+        """Transforms the curve in-place by sending all the points to a given
+        callable one by one. The given callable must expect two real numbers
+        and return the transformed point as a tuple."""
+        self._points = [transformation(*point) for point in self._points]
+
+    def transform_x(self, transformation):
+        """Transforms the X axis of the curve in-place by sending all the
+        points to a given callable one by one. The given callable must expect
+        a single real number and return the transformed value."""
+        self._points = [(transformation(x), y) for x, y in self._points]
+
+    def transform_y(self, transformation):
+        """Transforms the Y axis of the curve in-place by sending all the
+        points to a given callable one by one. The given callable must expect
+        a single real number and return the transformed value."""
+        self._points = [(x, transformation(y)) for x, y in self._points]
+
 
 class BinaryClassifierPerformanceCurve(Curve):
     """Class representing a broad class of binary classifier performance
@@ -201,7 +220,7 @@ class BinaryClassifierPerformanceCurve(Curve):
     a subclass. Accumulation curves are implemented in `AccumulationCurve`.
     """
 
-    def __init__(self, data, x_axis, y_axis):
+    def __init__(self, data, x_func, y_func):
         """Constructs a binary classifier performance curve from the given
         dataset using the two given measures on the X and Y axes.
 
@@ -211,18 +230,28 @@ class BinaryClassifierPerformanceCurve(Curve):
         example, otherwise it is positive. ``False`` also means a negative
         and ``True`` also means a positive example. The dataset can also
         be an instance of :class:`BinaryClassifierData`.
+
+        `x_func` and `y_func` must either be unbound method instances of
+        the `BinaryConfusionMatrix` class, or functions that accept
+        `BinaryConfusionMatrix` instances as their only arguments and
+        return a number.
         """
         self._data = None
         self._points = None
-        self.x_method_name = x_axis
-        self.y_method_name = y_axis
+        self.x_func = x_func
+        self.y_func = y_func
+
+        if not hasattr(self.x_func, "__call__"):
+            raise TypeError, "x_func must be callable"
+        if not hasattr(self.y_func, "__call__"):
+            raise TypeError, "y_func must be callable"
+
         self.data = data
 
     def _calculate_points(self):
         """Returns the actual points of the curve as a list of tuples."""
-        meth_x = getattr(BinaryConfusionMatrix, self.x_method_name)
-        meth_y = getattr(BinaryConfusionMatrix, self.y_method_name)
-        self._points = [(meth_x(mat), meth_y(mat)) for _, mat in \
+        x_func, y_func = self.x_func, self.y_func
+        self._points = [(x_func(mat), y_func(mat)) for _, mat in \
                 self._data.iter_confusion_matrices()]
 
     @property
@@ -248,37 +277,31 @@ class BinaryClassifierPerformanceCurve(Curve):
             - `title`: the title of the figure.
 
             - `xlabel`: the label of the X axis. If omitted, we will
-              try to infer it from `self.x_method_name`.
+              try to infer it from `self.x_func`.
 
             - `ylabel`: the label of the Y axis. If omitted, we will
-              try to infer it from `self.y_method_name`.
+              try to infer it from `self.y_func`.
 
         These must be given as keyword arguments.
+
+        Axis labels are inferred from the function objects that were
+        used to obtain the points of the curve; in particular, this method
+        is looking for an attribute named ``__axis_label__``, attached to
+        the function objects. You can attach such an attribute easily
+        by using `yard.utils.axis_label` as a decorator.
         """
-        # Set up the dict mapping method names to labels
-        known_labels = dict(\
-                accuracy="Accuracy", \
-                fdn="Fraction of data classified negative", \
-                fdp="Fraction of data classified positive", \
-                fpr="False positive rate", \
-                f_score="F-score", \
-                mcc="Matthews correlation coefficient", \
-                npv="Negative predictive value", \
-                ppv="Positive predictive value", \
-                precision="Precision", \
-                recall="Recall", \
-                sensitivity="Sensitivity", \
-                specificity="Specificity", \
-                tpr="True positive rate"
-        )
 
         # Infer the labels of the X and Y axes
+        def infer_label(func):
+            try:
+                return getattr(func, "__axis_label__")
+            except AttributeError:
+                return func.__name__
+
         if "xlabel" not in kwds:
-            kwds["xlabel"] = known_labels.get(self.x_method_name,
-                                              self.x_method_name)
+            kwds["xlabel"] = infer_label(self.x_func)
         if "ylabel" not in kwds:
-            kwds["ylabel"] = known_labels.get(self.y_method_name,
-                                              self.y_method_name)
+            kwds["ylabel"] = infer_label(self.y_func)
 
         return super(BinaryClassifierPerformanceCurve, self).\
                      get_empty_figure(*args, **kwds)
@@ -301,7 +324,8 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(ROCCurve, self).__init__(data, "fpr", "tpr")
+        super(ROCCurve, self).__init__(data, BinaryConfusionMatrix.fpr,
+            BinaryConfusionMatrix.tpr)
 
     def get_empty_figure(self, *args, **kwds):
         """Returns an empty `matplotlib.Figure` that can be used
@@ -366,7 +390,8 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(PrecisionRecallCurve, self).__init__(data, "recall", "precision")
+        super(PrecisionRecallCurve, self).__init__(data,
+            BinaryConfusionMatrix.recall, BinaryConfusionMatrix.precision)
 
 
 class AccumulationCurve(BinaryClassifierPerformanceCurve):
@@ -386,5 +411,6 @@ class AccumulationCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(AccumulationCurve, self).__init__(data, "fdp", "tpr")
+        super(PrecisionRecallCurve, self).__init__(data,
+            BinaryConfusionMatrix.fdp, BinaryConfusionMatrix.tpr)
 
