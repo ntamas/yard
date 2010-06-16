@@ -15,6 +15,7 @@ __email__   = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
+from bisect import bisect
 from itertools import izip
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 from yard.transform import ExponentialTransformation
@@ -41,7 +42,7 @@ class Curve(object):
         G1 + 1 = 2 * AUC).
         """
         points = self.points
-        auc = sum((y0+y1) / 2. * (x0-x1) \
+        auc = sum((y0+y1) / 2. * (x1-x0) \
                   for (x0, y0), (x1, y1) in izip(points, points[1:]))
         return auc
 
@@ -142,6 +143,41 @@ class Curve(object):
         self.plot_on_axes(fig.get_axes()[0], legend=legend)
         return fig
 
+    def get_interpolated_point(self, x):
+        """Returns an interpolated point on this curve at the given
+        X position.
+
+        The default implementation uses linear interpolation from the
+        nearest two points.
+
+        It is assumed that `self._points` is sorted in ascending order.
+        If not, this function will produce wrong results.
+        """
+        points = self.points
+        pos = bisect(points, (x, 0))
+
+        # Do we have an exact match?
+        try:
+            if points[pos][0] == x:
+                return points[pos]
+        except IndexError:
+            pass
+
+        # Nope, so we have to interpolate
+        if pos == 0:
+            # Extrapolating instead
+            (x1, y1), (x2, y2) = points[:2]
+            r = (x2-x)/float(x2-x1)
+        elif pos == len(points):
+            # Extrapolating instead
+            (x1, y1), (x2, y2) = points[-2:]
+            r = (x2-x)/float(x2-x1)
+        else:
+            # Truly interpolating
+            (x1, y1), (x2, y2) = points[pos-1:pos+1]
+            r = (x-x1)/float(x2-x1)
+        return (x, y1*r + y2*(1-r))
+
     def plot_on_axes(self, axes, style='r-', legend=True):
         """Plots the curve on the given `matplotlib.Axes` object.
         `style` specifies the style of the curve using ordinary
@@ -176,7 +212,15 @@ class Curve(object):
     def points(self, points):
         """Sets the points of this curve. The method makes a copy of the
         given iterable."""
-        self._points = [tuple(point) for point in points]
+        self._points = sorted(tuple(point) for point in points)
+
+    def resample(self, new_xs):
+        """Resamples the curve in-place at the given X positions.
+        `xs` must be a list of positions on the X axis; interpolation
+        will be used to calculate the corresponding Y values based on
+        the nearest known values.
+        """
+        self._points = [self.get_interpolated_point(x) for x in new_xs]
 
     def show(self, *args, **kwds):
         """Constructs and shows a `matplotlib.Figure` that plots the
@@ -192,13 +236,13 @@ class Curve(object):
         """Transforms the curve in-place by sending all the points to a given
         callable one by one. The given callable must expect two real numbers
         and return the transformed point as a tuple."""
-        self._points = [transformation(*point) for point in self._points]
+        self.points = [transformation(*point) for point in self._points]
 
     def transform_x(self, transformation):
         """Transforms the X axis of the curve in-place by sending all the
         points to a given callable one by one. The given callable must expect
         a single real number and return the transformed value."""
-        self._points = [(transformation(x), y) for x, y in self._points]
+        self.points = [(transformation(x), y) for x, y in self._points]
 
     def transform_y(self, transformation):
         """Transforms the Y axis of the curve in-place by sending all the
@@ -249,7 +293,7 @@ class BinaryClassifierPerformanceCurve(Curve):
     def _calculate_points(self):
         """Returns the actual points of the curve as a list of tuples."""
         x_func, y_func = self.x_func, self.y_func
-        self._points = [(x_func(mat), y_func(mat)) for _, mat in \
+        self.points = [(x_func(mat), y_func(mat)) for _, mat in \
                 self._data.iter_confusion_matrices()]
 
     @property
