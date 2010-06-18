@@ -80,7 +80,9 @@ class ROCPlotterApplication(object):
                 help="verbose mode, shows progress while calculating curves")
         parser.add_option("--show-auc", dest="show_auc", action="store_true",
                 default=False, help="shows the AUC scores in the legend")
-
+        parser.add_option("--no-resampling", dest="resampling", action="store_false",
+                default=True, help="don't resample curves before "
+                                   "plotting and AUC calculation")
         return parser
 
     @staticmethod
@@ -220,6 +222,9 @@ class ROCPlotterApplication(object):
 
             bc_data = BinaryClassifierData(zip(observed, expected), title=key)
             curve = self.curve_class(bc_data)
+
+            if self.options.resampling:
+                curve.resample([x/2000. for x in xrange(2001)])
 
             if self.options.show_auc:
                 aucs.append(curve.auc())

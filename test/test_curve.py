@@ -14,12 +14,13 @@ class CurveTest(unittest.TestCase):
         self.data = Curve([(1,2), (3,4), (5,5), (7,0)])
 
     def test_get_interpolated_point(self):
-        self.failUnless(self.data.get_interpolated_point(1)  ==  (1, 2))
-        self.failUnless(self.data.get_interpolated_point(5)  ==  (5, 5))
-        self.failUnless(self.data.get_interpolated_point(2)  ==  (2, 3))
-        self.failUnless(self.data.get_interpolated_point(0)  ==  (0, 1))
-        self.failUnless(self.data.get_interpolated_point(-1) == (-1, 0))
-        self.failUnless(self.data.get_interpolated_point(9)  == (9, -5))
+        self.failUnless(self.data.get_interpolated_point(1)   ==   (1, 2))
+        self.failUnless(self.data.get_interpolated_point(5)   ==   (5, 5))
+        self.failUnless(self.data.get_interpolated_point(2)   ==   (2, 3))
+        self.failUnless(self.data.get_interpolated_point(2.5) == (2.5, 3.5))
+        self.failUnless(self.data.get_interpolated_point(0)   ==   (0, 1))
+        self.failUnless(self.data.get_interpolated_point(-1)  ==  (-1, 0))
+        self.failUnless(self.data.get_interpolated_point(9)   ==  (9, -5))
 
     def test_resample(self):
         self.data.resample([0, 2, 4, 6, 8])
@@ -41,6 +42,9 @@ class ROCCurveTest(unittest.TestCase):
             (0.9, 1)
         ])
         self.curve = ROCCurve(self.data)
+
+    def test_auc_superclass(self):
+        self.assertAlmostEquals(0.95, Curve.auc(self.curve), 8)
 
     def test_auc(self):
         self.assertAlmostEquals(0.95, self.curve.auc(), 8)

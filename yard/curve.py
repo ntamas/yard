@@ -19,7 +19,7 @@ from bisect import bisect
 from itertools import izip
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 from yard.transform import ExponentialTransformation
-from yard.utils import axis_label
+from yard.utils import axis_label, rank
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
@@ -167,15 +167,13 @@ class Curve(object):
         if pos == 0:
             # Extrapolating instead
             (x1, y1), (x2, y2) = points[:2]
-            r = (x2-x)/float(x2-x1)
         elif pos == len(points):
             # Extrapolating instead
             (x1, y1), (x2, y2) = points[-2:]
-            r = (x2-x)/float(x2-x1)
         else:
             # Truly interpolating
             (x1, y1), (x2, y2) = points[pos-1:pos+1]
-            r = (x-x1)/float(x2-x1)
+        r = (x2-x)/float(x2-x1)
         return (x, y1*r + y2*(1-r))
 
     def plot_on_axes(self, axes, style='r-', legend=True):
@@ -366,6 +364,21 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
         """
         super(ROCCurve, self).__init__(data, BinaryConfusionMatrix.fpr,
             BinaryConfusionMatrix.tpr)
+
+    def auc(self):
+        """Constructs the area under the ROC curve by a linear transformation
+        of the rank sum of positive instances."""
+        observations, exps = zip(*self.data)
+        ranks = rank(observations)
+        del observations
+
+        pos_idxs = [idx for idx, truth in enumerate(exps) if truth]
+        num_pos, total = len(pos_idxs), len(exps)
+        num_neg = float(total - num_pos)
+        del exps
+
+        sum_pos_ranks = (total+1)*num_pos-sum(ranks[idx] for idx in pos_idxs)
+        return 1. - sum_pos_ranks / (num_pos*num_neg) + (num_pos+1) / (2*num_neg)
 
     def get_empty_figure(self, *args, **kwds):
         """Returns an empty `matplotlib.Figure` that can be used
