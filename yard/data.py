@@ -6,7 +6,7 @@ sensitivity, specificity, precision, recall, TPR, FPR and such.
 from bisect import bisect_left
 from itertools import izip
 
-from yard.utils import axis_label
+from yard.utils import axis_label, rank
 
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"
@@ -262,6 +262,20 @@ class BinaryClassifierData(object):
             result[0][0] = self.total_negatives - result[1][0]
             result[0][1] = self.total_positives - result[1][1]
         return BinaryConfusionMatrix(data=result)
+
+    def get_negative_ranks(self):
+        """Returns the ranks of the negative instances."""
+        observations, exps = zip(*self.data)
+        ranks = rank(observations)
+        del observations
+        return [ranks[idx] for idx, truth in enumerate(exps) if not truth]
+
+    def get_positive_ranks(self):
+        """Returns the ranks of the positive instances."""
+        observations, exps = zip(*self.data)
+        ranks = rank(observations)
+        del observations
+        return [ranks[idx] for idx, truth in enumerate(exps) if truth]
 
     def iter_confusion_matrices(self, thresholds=None):
         """Iterates over the possible prediction thresholds in the

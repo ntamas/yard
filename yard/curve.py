@@ -19,7 +19,7 @@ from bisect import bisect
 from itertools import izip
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 from yard.transform import ExponentialTransformation
-from yard.utils import axis_label, rank
+from yard.utils import axis_label
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
@@ -368,16 +368,20 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
     def auc(self):
         """Constructs the area under the ROC curve by a linear transformation
         of the rank sum of positive instances."""
-        observations, exps = zip(*self.data)
-        ranks = rank(observations)
-        del observations
+        pos_ranks = self.data.get_positive_ranks()
+        return self.auc_from_pos_ranks(pos_ranks, len(self.data))
 
-        pos_idxs = [idx for idx, truth in enumerate(exps) if truth]
-        num_pos, total = len(pos_idxs), len(exps)
-        num_neg = float(total - num_pos)
-        del exps
+    @staticmethod
+    def auc_from_pos_ranks(ranks, total):
+        """Returns the AUC under a ROC curve, given the ranks of the positive
+        examples and the total number of examples.
 
-        sum_pos_ranks = (total+1)*num_pos-sum(ranks[idx] for idx in pos_idxs)
+        This method can be used to calculate an AUC value quickly without
+        constructing the curve itself if you have the positive ranks.
+        """
+        num_pos = len(ranks)
+        num_neg = float(total-num_pos)
+        sum_pos_ranks = (total+1)*num_pos - sum(ranks)
         return 1. - sum_pos_ranks / (num_pos*num_neg) + (num_pos+1) / (2*num_neg)
 
     def get_empty_figure(self, *args, **kwds):
