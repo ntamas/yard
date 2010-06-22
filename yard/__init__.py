@@ -6,7 +6,8 @@ YARD -- Yet Another ROC Drawer
 This is yet another Python package for drawing ROC curves. It also
 lets you draw precision-recall and accumulation curves with both
 untransformed and transformed X axes and calculate AUC (area under
-curve) statistics.
+curve) statistics. The significance of differences between AUC
+scores can also be tested.
 """
 
 from yard.data import *
