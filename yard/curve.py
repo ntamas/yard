@@ -494,6 +494,29 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
         super(CROCCurve, self).__init__(data, self._transformed_fpr,
             BinaryConfusionMatrix.tpr)
 
+    def auc(self):
+        """Constructs the area under the ROC curve by the average of the
+        FPRs at thresholds equal to each positive instance."""
+        pos_ranks = self.data.get_positive_ranks()
+        return self.auc_from_pos_ranks(pos_ranks, len(self.data))
+
+    def auc_from_pos_ranks(self, pos_ranks, total):
+        """Returns the AUC under a CROC curve, given the ranks of the positive
+        examples and the total number of examples.
+
+        This method can be used to calculate an AUC value quickly without
+        constructing the curve itself if you have the positive ranks.
+        """
+        pos_count = len(pos_ranks)
+        neg_count = float(total - pos_count)
+        if neg_count == 0.:
+            return 1.
+
+        trans = self._transformation
+        total = sum(trans(1. - (rank - i - 1) / neg_count) 
+                    for i, rank in enumerate(pos_ranks))
+        return 1. - total / pos_count
+
     @axis_label("Transformed false positive rate")
     def _transformed_fpr(self, matrix):
         """Internal function that returns the transformed FPR value from the
