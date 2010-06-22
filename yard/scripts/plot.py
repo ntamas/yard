@@ -8,8 +8,9 @@ from itertools import cycle, izip
 from yard.data import BinaryClassifierData
 from yard.curve import ROCCurve, CROCCurve, AccumulationCurve, \
                        PrecisionRecallCurve
+from yard.scripts import CommandLineApp
 
-class ROCPlotterApplication(object):
+class ROCPlotterApplication(CommandLineApp):
     """\
     %prog input_file
     
@@ -26,28 +27,15 @@ class ROCPlotterApplication(object):
     short_name = "yard-plot"
 
     def __init__(self):
-        self.parser = self.create_parser()
-        self.log = self.create_logger()
+        super(ROCPlotterApplication, self).__init__()
         self.curve_class = None
         self.cols = None
         self.sep = None
-        self.options = None
 
-    def create_logger(self):
-        """Creates the logger object for the application"""
-        import logging
-
-        log = logging.getLogger(self.short_name)
-        log.setLevel(logging.DEBUG)
-
-        return log
-
-    def create_parser(self):
+    def add_parser_options(self):
         """Creates the command line parser object for the application"""
-        import optparse
-        from textwrap import dedent
+        parser = self.parser
 
-        parser = optparse.OptionParser(usage=dedent(self.__class__.__doc__))
         parser.add_option("-c", "--columns", dest="columns", metavar="COLUMNS",
                 help="use the given COLUMNS from the input file. Column indices "\
                      "are separated by commas. The first index specifies the "\
@@ -62,6 +50,12 @@ class ROCPlotterApplication(object):
                 help="use the given separator CHARacter between columns. "\
                      "If omitted, all whitespace characters are separators.",
                 default=None)
+        parser.add_option("-t", "--curve-type", dest="curve_type",
+                metavar="TYPE", choices=("roc", "pr", "ac", "croc"),
+                default="roc", 
+                help="sets the TYPE of the curve to be plotted "
+                     "(roc, pr, ac or croc)")
+
         parser.add_option("-l", "--log-scale", dest="log_scale",
                 metavar="AXES",
                 help="use logarithmic scale on the given AXES. "
@@ -70,20 +64,11 @@ class ROCPlotterApplication(object):
         parser.add_option("-o", "--output", dest="output", metavar="FILE",
                 help="saves the plot to the given FILE instead of showing it",
                 default=None)
-        parser.add_option("-t", "--curve-type", dest="curve_type",
-                metavar="TYPE", choices=("roc", "pr", "ac", "croc"),
-                default="roc", 
-                help="sets the TYPE of the curve to be plotted "
-                     "(roc, pr, ac or croc)")
-        parser.add_option("-v", "--verbose", dest="verbose",
-                action="store_true", default=False,
-                help="verbose mode, shows progress while calculating curves")
         parser.add_option("--show-auc", dest="show_auc", action="store_true",
                 default=False, help="shows the AUC scores in the legend")
         parser.add_option("--no-resampling", dest="resampling", action="store_false",
                 default=True, help="don't resample curves before "
                                    "plotting and AUC calculation")
-        return parser
 
     @staticmethod
     def parse_column_indices(indices):
@@ -102,14 +87,8 @@ class ROCPlotterApplication(object):
                 result.append(int(part)-1)
         return result
 
-    def run(self):
+    def run_real(self):
         """Runs the main application"""
-        self.options, args = self.parser.parse_args()
-
-        # Set logging level
-        from logging import basicConfig, WARN, INFO
-        basicConfig(level=[WARN, INFO][self.options.verbose], \
-                    format="%(message)s")
 
         # Process self.options.sep
         sep = self.options.sep
@@ -146,11 +125,11 @@ class ROCPlotterApplication(object):
             import matplotlib
             matplotlib.use("agg")
 
-        if not args:
-            args = ["-"]
+        if not self.args:
+            self.args = ["-"]
 
         data = defaultdict(list)
-        for arg in args:
+        for arg in self.args:
             if arg == "-":
                 handle = sys.stdin
                 arg = "standard input"
