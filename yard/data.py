@@ -6,7 +6,8 @@ sensitivity, specificity, precision, recall, TPR, FPR and such.
 from bisect import bisect_left
 from itertools import izip
 
-from yard.utils import axis_label, rank
+from yard.mathematics import rank
+from yard.utils import axis_label
 
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"

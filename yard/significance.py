@@ -66,7 +66,7 @@ class PairedPermutationTest(object):
         for trial in xrange(self.num_repetitions):
             idx = 0
             while True:
-                idx += geometric(p=0.5)
+                idx += geometric(p=0.01)
                 if idx >= m:
                     break
                 ranks1[idx], ranks2[idx] = ranks2[idx], ranks1[idx]
