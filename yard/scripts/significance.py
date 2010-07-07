@@ -5,6 +5,7 @@ datasets are statistically significant or not."""
 import itertools
 import sys
 
+from yard.curve import ROCCurve, CROCCurve
 from yard.data import BinaryClassifierData
 from yard.scripts import CommandLineAppForClassifierData
 from yard.significance import PairedPermutationTest
@@ -27,6 +28,7 @@ class SignificanceTestApplication(CommandLineAppForClassifierData):
 
     def __init__(self):
         super(SignificanceTestApplication, self).__init__()
+        self.curve_class = None
 
     def add_parser_options(self):
         """Creates the command line parser object for the application"""
@@ -34,16 +36,22 @@ class SignificanceTestApplication(CommandLineAppForClassifierData):
 
         parser = self.parser
 
-        """
         parser.add_option("-t", "--curve-type", dest="curve_type",
-                metavar="TYPE", choices=("roc", "pr", "ac", "croc"),
+                metavar="TYPE", choices=("roc", "croc"),
                 default="roc", 
-                help="sets the TYPE of the curve to be plotted "
-                     "(roc, pr, ac or croc)")
-        """
+                help="sets the TYPE of the curve whose AUC is to be "
+                     "calculated and tested (roc or croc)")
 
     def run_real(self):
         """Runs the main application"""
+        # Get the type of the curve to be plotted
+        try:
+            self.curve_class = dict(
+                    roc=ROCCurve, croc=CROCCurve
+            )[self.options.curve_type]
+        except KeyError:
+            self.parser.error("Unsupported curve type: %s" % self.options.curve_type)
+
         self.process_input_files()
         self.run_tests()
 
@@ -60,7 +68,8 @@ class SignificanceTestApplication(CommandLineAppForClassifierData):
             self.log.info("Preparing dataset for %s..." % key)
             data[key] = BinaryClassifierData(zip(data[key], expected), title=key)
 
-        significance_test = PairedPermutationTest()
+        self.log.info("Running significance tests...")
+        significance_test = PairedPermutationTest(self.curve_class)
         for key1, key2 in itertools.product(keys, keys):
             if key1 >= key2:
                 continue

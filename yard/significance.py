@@ -11,6 +11,21 @@ class SignificanceTest(object):
     tests.
     """
 
+    def __init__(self, curve_factory=ROCCurve):
+        """Creates a significance test using the given curve type.
+        `curve_factory` must be a class name or a factory method that can
+        accept a `BinaryClassifierData` instance and produce an instance
+        of `Curve`. The produced `Curve` instance must also have an
+        ``auc_from_pos_ranks`` method.
+        """
+        if not hasattr(curve_factory, "__call__"):
+            raise TypeError("curve_factory must be callable")
+        if not hasattr(curve_factory, "auc_from_pos_ranks"):
+            raise TypeError("curve_factory must have an auc_from_pos_ranks "
+                            "method")
+
+        self.curve_factory = curve_factory
+
     def test(self, data1, data2):
         """Tests whether the AUC scores of two ROC curves are significantly
         different or not. `data1` and `data2` must be instances of
@@ -19,7 +34,7 @@ class SignificanceTest(object):
         raise NotImplementedError
 
 
-class PairedPermutationTest(object):
+class PairedPermutationTest(SignificanceTest):
     """Class implementing a paired permutation significance test for
     binary classifier curves.
 
@@ -34,8 +49,13 @@ class PairedPermutationTest(object):
     the p-value.
     """
 
-    def __init__(self):
-        self.num_repetitions = 1000
+    def __init__(self, *args, **kwds):
+        if "num_repetitions" in kwds:
+            self.num_repetitions = int(kwds["num_repetitions"])
+            del kwds["num_repetitions"]
+        else:
+            self.num_repetitions = 1000
+        super(PairedPermutationTest, self).__init__(*args, **kwds)
 
     def test(self, data1, data2):
         """Tests whether the AUC scores of two ROC curves are significantly
@@ -57,8 +77,8 @@ class PairedPermutationTest(object):
             raise ValueError("the two datasets must have the same "
                              "positive examples")
 
-
-        auc_from_ranks = ROCCurve.auc_from_pos_ranks
+        dummy_curve = self.curve_factory([])
+        auc_from_ranks = dummy_curve.auc_from_pos_ranks
         observed_diff = auc_from_ranks(ranks1, n) - auc_from_ranks(ranks2, n)
         abs_observed_diff = abs(observed_diff)
         num_success = 0
