@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
 from collections import deque
+from functools import wraps
 
 def axis_label(label):
     """Creates a decorator that attaches an attribute named ``__axis_label__``
@@ -37,4 +38,16 @@ def endless_generator(func, *args, **kwds):
         while buffer:
             yield buffer.popleft()
         buffer.extend(func(*args, **kwds))
+
+
+def vectorized(func):
+    """Decorator that returns a vectorized variant of a single-argument
+    function.
+    """
+    @wraps(func)
+    def wrapper(item, *args, **kwds):
+        if hasattr(item, "__iter__"):
+            return [func(i) for i in item]
+        return func(item)
+    return wrapper
 

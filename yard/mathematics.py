@@ -7,6 +7,10 @@ on working without them. If you have NumPy or SciPy, ``yard`` simply imports
 the appropriate routines from there.
 """
 
+from yard.utils import vectorized
+
+#############################################################################
+
 try:
     from numpy.random import geometric
 except ImportError:
@@ -29,6 +33,43 @@ except ImportError:
             return int(ceil(log(random(), 1.0-p)))
         return [int(ceil(log(random(), 1.0-p))) for _ in xrange(size)]
 
+#############################################################################
+
+try:
+    from numpy import log
+except ImportError:
+    from math import log as math_log
+
+    def _safelog(item):
+        """Takes the logarithm of `item`. Instead of raising exceptions
+        like `math.log` does, it returns ``-inf`` for zero and ``nan``
+        for negative numbers.
+        """
+        if item < 0:
+            return float('nan')
+        if item == 0:
+            return float('-inf')
+        return math_log(item)
+
+    log = vectorized(_safelog)
+
+#############################################################################
+
+try:
+    from numpy import power
+except ImportError:
+    def power(item, exponent):
+        """Raises `item` to the given `exponent` and returns the result.
+        `item` or `exponent` (but not both) may also be an iterable. In
+        this case, the result will be a list, and exponentiation will be
+        done elementwise."""
+        if hasattr(item, "__iter__"):
+            return [i**exponent for i in item]
+        if hasattr(exponent, "__iter__"):
+            return [item**i for i in exponent]
+        return item**exponent
+
+#############################################################################
 
 try:
     from scipy.stats import rankdata as rank

@@ -7,6 +7,7 @@ ordinary ROC, AC and PR curves.
 """
 
 from math import exp
+from yard.mathematics import log, power
 
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"
@@ -28,8 +29,23 @@ class ExponentialTransformation(object):
         to 0.5."""
         self.exp_minus_alpha = exp(-alpha)
 
-    def __call__(self, x):
+    def inverse(self, y):
+        """Finds `x` for which the following equation holds:
+        `y = (1-exp(-alpha*x)) / (1-exp(-alpha))`.
+        """
+        alpha = self.exp_minus_alpha - 1
+        if hasattr(y, "__iter__"):
+            y = [i*alpha+1 for i in y]
+            return log(y)
+        return log(y*alpha+1)
+
+    def transform(self, x):
         """Transforms the given number `x` and returns
         `(1-exp(-alpha*x)) / (1-exp(-alpha))`."""
-        return (1-self.exp_minus_alpha**x) / (1-self.exp_minus_alpha)
+        den = 1-self.exp_minus_alpha
+        if hasattr(x, "__iter__"):
+            x = power(self.exp_minus_alpha, x)
+            return [(1-value)/den for value in x]
+        return (1-self.exp_minus_alpha**x) / den
 
+    __call__ = transform

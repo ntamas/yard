@@ -445,6 +445,66 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
         super(PrecisionRecallCurve, self).__init__(data,
             BinaryConfusionMatrix.recall, BinaryConfusionMatrix.precision)
 
+    def get_interpolated_point(self, x):
+        """Returns an interpolated point on this curve at the given
+        X position.
+
+        This method performs the proper non-linear interpolation that
+        is required for precision-recall curves. Basically, for each
+        point, we find the two nearest known points, infer the original
+        TP, FP and FN values at those points, and then we interpolate
+        linearly in the space of TP-FP-FN values, while recalculating
+        the precision and the recall at x.
+
+        It is assumed that `self._points` is sorted in ascending order.
+        If not, this function will produce wrong results.
+        """
+        points = self.points
+        pos = bisect(points, (x, 0))
+
+        # Do we have an exact match?
+        try:
+            if points[pos][0] == x:
+                return points[pos]
+        except IndexError:
+            pass
+
+        # Nope, so we have to interpolate
+        if pos == 0:
+            # Extrapolation is not possible, just return the
+            # first element from points
+            return points[0]
+        elif pos == len(points):
+            # Extrapolation is not possible, just return the
+            # last element from points
+            return points[-1]
+
+        # Truly interpolating
+        (x1, y1), (x2, y2) = points[pos-1:pos+1]
+        # The calculations (spelled out nicely) would be as follows:
+        #
+        # total_pos = self.data.total_positives
+        # tp_left, tp_right = total_pos * x1, total_pos * x2
+        # fp_left  = tp_left * (1. - y1) / y1
+        # fp_right = tp_right * (1. - y2) / y2
+        # r = (tp_right-tp_mid)/float(tp_right-tp_left)
+        # fp_mid = fp_left*r + fp_right*(1-r)
+        # tp_mid = total_pos * x
+        # recall_mid = tp_mid / (tp_mid + fp_mid)
+        # return (x, recall_mid)
+        #
+        # Now, we recognise that we can divide almost everything with
+        # total_pos, leading us to the following implementation:
+        fp_left_over_total_pos  = x1 * (1. - y1) / y1
+        fp_right_over_total_pos = x2 * (1. - y2) / y2
+        r = (x2-x)/float(x2-x1)
+        fp_mid_over_total_pos = (
+                fp_left_over_total_pos * r +
+                fp_right_over_total_pos * (1-r)
+        )
+        return (x, x / (x + fp_mid_over_total_pos))
+
+
 
 class AccumulationCurve(BinaryClassifierPerformanceCurve):
     """Class representing an accumulation curve.
@@ -513,9 +573,8 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
             return 1.
 
         trans = self._transformation
-        total = sum(trans(1. - (rank - i - 1) / neg_count) 
-                    for i, rank in enumerate(pos_ranks))
-        return 1. - total / pos_count
+        fprs = [1. - (rank-i-1) / neg_count for i, rank in enumerate(pos_ranks)]
+        return 1. - sum(trans(fprs)) / pos_count
 
     @axis_label("Transformed false positive rate")
     def _transformed_fpr(self, matrix):
@@ -565,5 +624,53 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
 
         return fig
 
+    def get_interpolated_point(self, x):
+        """Returns an interpolated point on this curve at the given
+        X position.
+
+        This method performs the proper non-linear interpolation that
+        is required for concentrated ROC curves. Basically, for each
+        point, we find the two nearest known points, transform the
+        X coordinates back to obtain the original FPRs, interpolate
+        them, then transform then again.
+
+        It is assumed that `self._points` is sorted in ascending order.
+        If not, this function will produce wrong results.
+        """
+        points = self.points
+        pos = bisect(points, (x, 0))
+
+        # Do we have an exact match?
+        try:
+            if points[pos][0] == x:
+                return points[pos]
+        except IndexError:
+            pass
+
+        # Nope, so we have to interpolate
+        if pos == 0:
+            # Extrapolation is not possible, just return the
+            # first element from points
+            return points[0]
+        elif pos == len(points):
+            # Extrapolation is not possible, just return the
+            # last element from points
+            return points[-1]
+
+        if pos == 0:
+            # Extrapolating instead
+            (x1, y1), (x2, y2) = points[:2]
+        elif pos == len(points):
+            # Extrapolating instead
+            (x1, y1), (x2, y2) = points[-2:]
+        else:
+            # Truly interpolating
+            (x1, y1), (x2, y2) = points[pos-1:pos+1]
+
+        trans_inv = self._transformation.inverse
+
+        fpr1, fpr2, fpr_mid = trans_inv(x1), trans_inv(x2), trans_inv(x)
+        r = (fpr2-fpr_mid)/(fpr2-fpr1)
+        return (x, y1 * r + y2 * (1-r))
 
 
