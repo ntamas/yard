@@ -179,6 +179,9 @@ class BinaryConfusionMatrix(object):
         obs, exp = coords
         return self._data[obs][exp]
 
+    def __hash__(self):
+        return hash((self.tp, self.tn, self.fp, self.fn))
+
     def __repr__(self):
         return "%s(tp=%d, fp=%d, fn=%d, tn=%d)" % \
                 (self.__class__.__name__, self.tp, self.fp, self.fn, self.tn)
