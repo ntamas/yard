@@ -344,6 +344,12 @@ class BinaryClassifierPerformanceCurve(Curve):
         return super(BinaryClassifierPerformanceCurve, self).\
                      get_empty_figure(*args, **kwds)
 
+    @classmethod
+    def get_friendly_name(cls):
+        """Returns a human-readable name of the curve that can be
+        used in messages."""
+        return cls.__name__
+
 
 class ROCCurve(BinaryClassifierPerformanceCurve):
     """Class representing a ROC curve.
@@ -424,6 +430,12 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
 
         return fig
 
+    @classmethod
+    def get_friendly_name(cls):
+        """Returns a human-readable name of the curve that can be
+        used in messages."""
+        return "ROC curve"
+
 
 class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
     """Class representing a precision-recall curve.
@@ -444,6 +456,12 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
         """
         super(PrecisionRecallCurve, self).__init__(data,
             BinaryConfusionMatrix.recall, BinaryConfusionMatrix.precision)
+
+    @classmethod
+    def get_friendly_name(cls):
+        """Returns a human-readable name of the curve that can be
+        used in messages."""
+        return "precision-recall curve"
 
     def get_interpolated_point(self, x):
         """Returns an interpolated point on this curve at the given
@@ -525,6 +543,12 @@ class AccumulationCurve(BinaryClassifierPerformanceCurve):
         """
         super(PrecisionRecallCurve, self).__init__(data,
             BinaryConfusionMatrix.fdp, BinaryConfusionMatrix.tpr)
+
+    @classmethod
+    def get_friendly_name(cls):
+        """Returns a human-readable name of the curve that can be
+        used in messages."""
+        return "accumulation curve"
 
 
 class CROCCurve(BinaryClassifierPerformanceCurve):
@@ -672,5 +696,11 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
         fpr1, fpr2, fpr_mid = trans_inv(x1), trans_inv(x2), trans_inv(x)
         r = (fpr2-fpr_mid)/(fpr2-fpr1)
         return (x, y1 * r + y2 * (1-r))
+
+    @classmethod
+    def get_friendly_name(cls):
+        """Returns a human-readable name of the curve that can be
+        used in messages."""
+        return "concentrated ROC curve"
 
 
