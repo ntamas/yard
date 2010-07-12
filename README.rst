@@ -132,13 +132,16 @@ found a bug, feel free to `contact me`_.
 
 .. _contact me: http://www.cs.rhul.ac.uk/home/tamas
 
-Acknowledgments
----------------
+Acknowledgments and references
+------------------------------
 
-For more details on the CROC curves, see the following publication:
+The inclusion of CROC curves and the statistical significance testing
+was inspired by the following publication (which also provides more
+details on what CROC curves are and why they are more useful than ROC
+curves in many cases):
 
     **A CROC Stronger than ROC: Measuring, Visualizing and Optimizing
     Early Retrieval**.
-    S. Joshua Swamidass, Chloe-Agathe Azencott, Kenny Daily and Pierre Baldi
+    S. Joshua Swamidass, Chloe-Agathe Azencott, Kenny Daily and Pierre Baldi.
     *Bioinformatics*, April 2010, doi:10.1093/bioinformatics/btq140
 
