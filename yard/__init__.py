@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 """\
-YARD -- Yet Another ROC Drawer
-==============================
+YARD - Yet Another ROC Drawer
+=============================
 
 This is yet another Python package for drawing ROC curves. It also
-lets you draw precision-recall and accumulation curves with both
-untransformed and transformed X axes and calculate AUC (area under
-curve) statistics. The significance of differences between AUC
-scores can also be tested.
+lets you draw precision-recall, accumulation and concentrated ROC
+(CROC) curves and calculate the AUC (area under curve) statistics.
+The significance of differences between AUC scores can also be
+tested using paired permutation tests.
+
+You may also be interested in CROC_, a similar package on the
+Python Package Index that implements ROC curves. ``yard`` was developed
+independently from CROC_, but several features of CROC have inspired
+similar ones in ``yard``.
+
+.. _CROC: http://pypi.python.org/pypi/CROC
 """
 
 from yard.data import *

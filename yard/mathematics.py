@@ -7,6 +7,11 @@ on working without them. If you have NumPy or SciPy, ``yard`` simply imports
 the appropriate routines from there.
 """
 
+__author__  = "Tamas Nepusz"
+__email__   = "tamas@cs.rhul.ac.uk"
+__copyright__ = "Copyright (c) 2010, Tamas Nepusz"
+__license__ = "MIT"
+
 from yard.utils import vectorized
 
 #############################################################################

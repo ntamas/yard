@@ -10,6 +10,11 @@ from yard.data import BinaryClassifierData
 from yard.scripts import CommandLineAppForClassifierData
 from yard.significance import PairedPermutationTest
 
+__author__  = "Tamas Nepusz"
+__email__   = "tamas@cs.rhul.ac.uk"
+__copyright__ = "Copyright (c) 2010, Tamas Nepusz"
+__license__ = "MIT"
+
 class SignificanceTestApplication(CommandLineAppForClassifierData):
     """\
     %prog input_file
@@ -86,7 +91,10 @@ class SignificanceTestApplication(CommandLineAppForClassifierData):
                           (stars, diff, p_value, key1, key2))
 
 
+def main():
+    """Entry point for the significance testing script"""
+    sys.exit(SignificanceTestApplication().run())
 
 if __name__ == "__main__":
-    sys.exit(SignificanceTestApplication().run())
+    main()
 

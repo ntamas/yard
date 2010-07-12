@@ -9,6 +9,11 @@ from yard.curve import ROCCurve, CROCCurve, AccumulationCurve, \
                        PrecisionRecallCurve
 from yard.scripts import CommandLineAppForClassifierData
 
+__author__  = "Tamas Nepusz"
+__email__   = "tamas@cs.rhul.ac.uk"
+__copyright__ = "Copyright (c) 2010, Tamas Nepusz"
+__license__ = "MIT"
+
 class ROCPlotterApplication(CommandLineAppForClassifierData):
     """\
     %prog input_file
@@ -179,6 +184,10 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
         return fig
 
-if __name__ == "__main__":
+
+def main():
+    """Entry point for the plotter script"""
     sys.exit(ROCPlotterApplication().run())
 
+if __name__ == "__main__":
+    main()

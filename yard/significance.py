@@ -6,6 +6,11 @@ the AUC for ROC curves.
 from yard.curve import ROCCurve
 from yard.mathematics import geometric
 
+__author__  = "Tamas Nepusz"
+__email__   = "tamas@cs.rhul.ac.uk"
+__copyright__ = "Copyright (c) 2010, Tamas Nepusz"
+__license__ = "MIT"
+
 class SignificanceTest(object):
     """Abstract class that defines the interface of significance
     tests.

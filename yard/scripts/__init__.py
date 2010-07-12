@@ -18,6 +18,11 @@ from collections import defaultdict
 from optparse import OptionParser
 from textwrap import dedent
 
+__author__  = "Tamas Nepusz"
+__email__   = "tamas@cs.rhul.ac.uk"
+__copyright__ = "Copyright (c) 2010, Tamas Nepusz"
+__license__ = "MIT"
+
 class CommandLineApp(object):
     """Generic command line application class"""
 

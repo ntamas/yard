@@ -14,6 +14,15 @@ setup(name='yard',
       provides=['yard'],
       keywords='roc curve statistics mathematics machine learning auc',
       license='MIT License',
+      entry_points={
+          "console_scripts": [
+              "yard-plot = yard.scripts.plot:main",
+              "yard-significance = yard.scripts.significance:main"
+          ]
+      },
+      extras_require={
+          "plotting": ["matplotlib >= 0.99"]
+      },
       classifiers=['Development Status :: 3 - Alpha',
                    'Environment :: Console',
                    'Intended Audience :: Developers',
