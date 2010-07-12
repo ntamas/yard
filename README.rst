@@ -49,6 +49,24 @@ You will need the following tools to run ``yard``:
 .. _GNUPlot: http:/www.gnuplot.info
 .. _NumPy: http://numpy.scipy.org
 
+Installation
+------------
+
+The simplest way to install ``yard`` is by using ``easy_install``::
+
+    $ easy_install yard
+
+This goes to the `Python package index`_ page, fetches the most recent
+stable version and installs it, creating two scripts in your path:
+``yard-plot`` for plotting and ``yard-significance`` for significance
+testing.
+
+If you want the bleeding edge version, you should go to the GitHub_
+page, download a ZIP or .tar.gz file, extract it to some directory
+and then run the following command::
+
+    $ python setup.py install
+
 Running ``yard``
 ----------------
 
