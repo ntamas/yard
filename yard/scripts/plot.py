@@ -90,7 +90,13 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
                not self.options.output.endswith(".pdf"):
                 self.parser.error("multiple curves can only be plotted to PDF")
 
-            from matplotlib.backends.backend_pdf import PdfPages
+            try:
+                from matplotlib.backends.backend_pdf import PdfPages
+            except ImportError:
+                self.parser.error("Matplotlib is too old and does not have "
+                        "multi-page PDF support yet. Please upgrade it to "
+                        "Matplotlib 0.99 or later")
+
             pp = PdfPages(self.options.output)
             def figure_saver(figure):
                 pp.savefig(figure)
