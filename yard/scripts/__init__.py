@@ -193,7 +193,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
                 anon_dataset_idx = 1
                 for idx, header in enumerate(headers):
                     if not header:
-                        while ("Dataset %d" % anon_dataset_idx) in data:
+                        while ("Dataset %d" % anon_dataset_idx) in self.data:
                             anon_dataset_idx += 1
                         headers[idx] = "Dataset %d" % anon_dataset_idx
                 continue
