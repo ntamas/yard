@@ -7,6 +7,7 @@ At the time of writing, this includes:
     - ROC curves
     - CROC curves
     - Precision-recall curves
+    - Sensitivity-specificity plots
     - Accumulation curves
 """
 
@@ -19,7 +20,7 @@ from bisect import bisect
 from itertools import izip
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 from yard.transform import ExponentialTransformation
-from yard.utils import axis_label
+from yard.utils import axis_label, itersubclasses
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
@@ -249,6 +250,50 @@ class Curve(object):
         self._points = [(x, transformation(y)) for x, y in self._points]
 
 
+class CurveFactory(object):
+    """Factory class to construct `Curve` instances from short identifiers.
+    
+    Short identifiers for curve types are typically used in the command-line
+    interface of `yard` to let the user specify which curve he/she wants to
+    plot. This factory class interprets the short identifiers and constructs
+    appropriate `Curve` instances.
+    """
+
+    @classmethod
+    def construct_from_name(cls, name, *args, **kwds):
+        """Constructs a curve from a short name used in command line arguments
+        across the whole ``yard`` package.
+        
+        `name` is matched against the ``identifier`` class-level properties of
+        all the subclasses of `Curve` to find the subclass to be constructed.
+        All the remaining arguments are passed on intact to the constructor of
+        the subclass. Returns a new instance of the found subclass, or raises
+        ``ValueError`` if an invalid name was given.
+        """
+        return cls.find_class_by_name(name)(*args, **kwds)
+
+    @staticmethod
+    def find_class_by_name(name):
+        """Finds the class corresponding to a given short name used in command
+        line arguments across the whole ``yard`` package.
+        
+        `name` is matched against the ``identifier`` class-level properties of
+        all the subclasses of `Curve` to find the subclass to be constructed.
+        Returns the found subclass (not an instance of it), or raises
+        ``ValueError`` if an invalid name was given.
+        """
+        name = name.lower()
+        for cls in itersubclasses(Curve):
+            if hasattr(cls, "identifier") and cls.identifier == name:
+                return cls
+        raise ValueError("no such curve type: %s" % name)
+
+    @staticmethod
+    def get_curve_names():
+        return sorted([cls.identifier for cls in itersubclasses(Curve)
+                if hasattr(cls, "identifier")])
+
+
 class BinaryClassifierPerformanceCurve(Curve):
     """Class representing a broad class of binary classifier performance
     curves.
@@ -358,6 +403,8 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
     the false positive rate on the X axis.
     """
 
+    identifier = "roc"
+
     def __init__(self, data):
         """Constructs a ROC curve from the given dataset.
 
@@ -444,6 +491,8 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
     recall on the X axis.
     """
 
+    identifier = "pr"
+
     def __init__(self, data):
         """Constructs a precision-recall curve from the given dataset.
 
@@ -524,12 +573,43 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
 
 
 
+class SensitivitySpecificityCurve(BinaryClassifierPerformanceCurve):
+    """Class representing a sensitivity-specificity plot.
+    
+    A sensitivity-specificity curve plots the sensitivity on the Y axis
+    versus the specificity on the X axis.
+    """
+
+    identifier = "sespe"
+
+    def __init__(self, data):
+        """Constructs a sensitivity-specificity curve from the given dataset.
+
+        The dataset must contain ``(x, y)`` pairs where `x` is a predicted
+        value and `y` defines whether the example is positive or negative.
+        When `y` is less than or equal to zero, it is considered a negative
+        example, otherwise it is positive. ``False`` also means a negative
+        and ``True`` also means a positive example. The dataset can also
+        be an instance of `BinaryClassifierData`.
+        """
+        super(SensitivitySpecificityCurve, self).__init__(data,
+            BinaryConfusionMatrix.tnr, BinaryConfusionMatrix.recall)
+
+    @classmethod
+    def get_friendly_name(cls):
+        """Returns a human-readable name of the curve that can be
+        used in messages."""
+        return "sensitivity-specificity plot"
+
+
 class AccumulationCurve(BinaryClassifierPerformanceCurve):
     """Class representing an accumulation curve.
     
     An accumulation curve plots the true positive rate on the Y axis
     versus the fraction of data classified as positive on the X axis.
     """
+
+    identifier = "ac"
 
     def __init__(self, data):
         """Constructs an accumulation curve from the given dataset.
@@ -559,6 +639,8 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
     in order to give more emphasis to the left hand side of the X axis
     (close to zero).
     """
+
+    identifier = "croc"
 
     def __init__(self, data, alpha = 7):
         """Constructs a CROC curve from the given dataset.

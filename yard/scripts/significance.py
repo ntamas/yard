@@ -5,7 +5,7 @@ datasets are statistically significant or not."""
 import itertools
 import sys
 
-from yard.curve import ROCCurve, CROCCurve
+from yard.curve import CurveFactory
 from yard.data import BinaryClassifierData
 from yard.scripts import CommandLineAppForClassifierData
 from yard.significance import PairedPermutationTest
@@ -51,10 +51,8 @@ class SignificanceTestApplication(CommandLineAppForClassifierData):
         """Runs the main application"""
         # Get the type of the curve to be plotted
         try:
-            self.curve_class = dict(
-                    roc=ROCCurve, croc=CROCCurve
-            )[self.options.curve_type]
-        except KeyError:
+            self.curve_class = CurveFactory.find_class_by_name(self.options.curve_type)
+        except ValueError:
             self.parser.error("Unsupported curve type: %s" % self.options.curve_type)
 
         self.process_input_files()

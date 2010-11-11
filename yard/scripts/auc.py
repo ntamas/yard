@@ -4,8 +4,7 @@
 import sys
 
 from yard.data import BinaryClassifierData
-from yard.curve import ROCCurve, CROCCurve, AccumulationCurve, \
-                       PrecisionRecallCurve
+from yard.curve import CurveFactory
 from yard.scripts import CommandLineAppForClassifierData
 
 __author__  = "Tamas Nepusz"
@@ -39,31 +38,26 @@ class AUCCalculatorApplication(CommandLineAppForClassifierData):
         parser = self.parser
 
         parser.add_option("-t", "--curve-type", dest="curve_types",
-                metavar="TYPE", choices=("roc", "pr", "ac", "croc"),
+                metavar="TYPE", choices=CurveFactory.get_curve_names(),
                 action="append", default=[],
                 help="sets the TYPE of the curve to be plotted "
-                     "(roc, pr, ac or croc). May be specified "
-                     "multiple times if the output is PDF.")
+                     "(roc, pr, ac, sespe or croc). May be specified "
+                     "multiple times.")
 
     def run_real(self):
         """Runs the main application"""
 
+        # If no curve type was given, assume a ROC curve
+        if not self.options.curve_types:
+            self.options.curve_types = ["roc"]
+
         # Get the types of the curves to be plotted
-        curve_name_to_class = dict(
-                roc=ROCCurve, croc=CROCCurve,
-                ac=AccumulationCurve,
-                pr=PrecisionRecallCurve
-        )
         curve_classes = []
         for name in self.options.curve_types:
             try:
-                curve_classes.append(curve_name_to_class[name])
-            except KeyError:
+                curve_classes.append(CurveFactory.find_class_by_name(name))
+            except ValueError:
                 self.parser.error("Unknown curve type: %s" % name)
-
-        # If no curve type was given, assume a ROC curve
-        if not curve_classes:
-            curve_classes.append(ROCCurve)
 
         self.process_input_files()
         for curve_class in curve_classes:
