@@ -16,6 +16,7 @@ setup(name='yard',
       license='MIT License',
       entry_points={
           "console_scripts": [
+              "yard-auc = yard.scripts.auc:main",
               "yard-plot = yard.scripts.plot:main",
               "yard-significance = yard.scripts.significance:main"
           ]
