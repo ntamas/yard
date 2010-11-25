@@ -114,7 +114,7 @@ AUC statistics::
 
 Supported curve types are: ``roc`` for ROC curves (default), ``pr`` for
 precision-recall curves, ``croc`` for CROC curves, ``ac`` for accumulation
-curves.
+curves, ``sespe`` for sensitivity-specificity curves.
 
 To use a logarithmic X axis for the ROC curve and use the standard input
 instead of a file::
@@ -136,6 +136,14 @@ You may specify other formats as long as they are supported by Matplotlib::
 The PDF backend also supports multiple plots in separate pages::
 
     $ yard-plot -t pr -t roc -t croc -o curves.pdf input_data.txt
+
+The figure size, the DPI ratio and the font size can also be adjusted::
+
+    $ yard-plot -o roc_curve.pdf --font-size 8 -s '8cm x 6cm' input_data.txt
+
+To calculate the AUC statistics for multiple curves without plotting them::
+
+    $ yard-auc -t pr -t roc input_data.txt
 
 To test whether the ROC curves of multiple classifiers are significantly
 different::

@@ -7,6 +7,7 @@ from itertools import cycle, izip
 from yard.data import BinaryClassifierData
 from yard.curve import CurveFactory
 from yard.scripts import CommandLineAppForClassifierData
+from yard.utils import parse_size
 
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"
@@ -52,6 +53,22 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
         parser.add_option("-o", "--output", dest="output", metavar="FILE",
                 help="saves the plot to the given FILE instead of showing it",
                 default=None)
+        parser.add_option("-s", "--size", dest="size", metavar="WIDTHxHEIGHT",
+                help="sets the size of the figure to WIDTHxHEIGHT, where "
+                     "WIDTH and HEIGHT are measures in inches. You may "
+                     "specify alternative measures (cm or mm) by adding "
+                     "them as a suffix; e.g., \"6cmx4cm\" or \"6cm x 4cm\"",
+                 default=None)
+        parser.add_option("--dpi", dest="dpi", metavar="DPI",
+                type=float, default=72.0,
+                help="specifies the dpi value (dots per inch) when "
+                     "converting pixels to inches and vice versa "
+                     "in figure and font size calculations. "
+                     "Default: %default")
+        parser.add_option("--font-size", dest="font_size", metavar="SIZE",
+                type=float, default=None,
+                help="overrides the font size to be used on figures, "
+                     "in points (pt).")
         parser.add_option("--show-auc", dest="show_auc", action="store_true",
                 default=False, help="shows the AUC scores in the legend")
         parser.add_option("--no-resampling", dest="resampling", action="store_false",
@@ -60,15 +77,20 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
     def run_real(self):
         """Runs the main application"""
+        import matplotlib
 
         # Do we need headless mode for matplotlib?
         if self.options.output:
-            import matplotlib
             matplotlib.use("agg")
 
         # If no curve type was given, assume a ROC curve
         if not self.options.curve_types:
             self.options.curve_types = ["roc"]
+
+        # Set up the font size
+        if self.options.font_size is not None:
+            for param in ['font.size', 'legend.fontsize']:
+                matplotlib.rcParams[param] = self.options.font_size
 
         # Get the types of the curves to be plotted
         curve_classes = []
@@ -155,7 +177,9 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
                 labels.append(key)
 
             if not fig:
-                fig = curve.get_empty_figure()
+                dpi = self.options.dpi
+                fig = curve.get_empty_figure(dpi=dpi,
+                        figsize=parse_size(self.options.size, dpi=dpi))
                 axes = fig.get_axes()[0]
 
             line_handle = curve.plot_on_axes(axes, style=style, legend=False)
