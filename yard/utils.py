@@ -118,6 +118,8 @@ def parse_size(size_as_string, dpi=72, sep='x,;'):
 
     Examples::
 
+        >>> parse_size(None)           # doctest:+ELLIPSIS
+        (8.0, 4.9442...)
         >>> parse_size('')             # doctest:+ELLIPSIS
         (8.0, 4.9442...)
         >>> parse_size('8x6')
@@ -133,6 +135,9 @@ def parse_size(size_as_string, dpi=72, sep='x,;'):
         >>> parse_size('6in')          # doctest:+ELLIPSIS
         (6.0, 3.7082...)
     """
+    if size_as_string is None:
+        size_as_string = ''
+
     if "x" in sep:
         # If we have a pixel measure somewhere, we have to be careful
         size_as_string = size_as_string.replace("px", "PX")

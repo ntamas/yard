@@ -101,6 +101,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
                 self.parser.error("Unknown curve type: %s" % name)
 
         # Do we have multiple curve types? If so, we need PDF output
+        pp = None
         if len(curve_classes) > 1:
             if not self.options.output or \
                not self.options.output.endswith(".pdf"):
@@ -118,16 +119,14 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
                 pp.savefig(figure, bbox_inches="tight")
         elif self.options.output:
             # Figure with a single plot will be created
-            pp = None
             def figure_saver(figure):
                 self.log.info("Saving plot to %s..." % self.options.output)
                 figure.savefig(self.options.output, bbox_inches="tight")
         else:
             # Figure will be shown on screen
             def figure_saver(figure):
-                figure.show()
-                print "Press Enter..."
-                raw_input()
+                import matplotlib.pyplot as plt
+                plt.show()
 
         self.process_input_files()
 
