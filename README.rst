@@ -5,9 +5,9 @@ YARD - Yet Another ROC Drawer
 
 This is yet another Python package for drawing ROC curves. It also
 lets you draw precision-recall, accumulation and concentrated ROC
-(CROC) curves and calculate the AUC (area under curve) statistics.
-The significance of differences between AUC scores can also be
-tested using paired permutation tests.
+(CROC) curves, sensitivity-specificity plots, F-score curves and calculate
+the AUC (area under curve) statistics.  The significance of differences
+between AUC scores can also be tested using paired permutation tests.
 
 Where to get ``yard``
 ---------------------
@@ -114,7 +114,8 @@ AUC statistics::
 
 Supported curve types are: ``roc`` for ROC curves (default), ``pr`` for
 precision-recall curves, ``croc`` for CROC curves, ``ac`` for accumulation
-curves, ``sespe`` for sensitivity-specificity curves.
+curves, ``sespe`` for sensitivity-specificity plots, ``fscore`` for
+F-score curves.
 
 To use a logarithmic X axis for the ROC curve and use the standard input
 instead of a file::

@@ -115,13 +115,13 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
             pp = PdfPages(self.options.output)
             def figure_saver(figure):
-                pp.savefig(figure)
+                pp.savefig(figure, bbox_inches="tight")
         elif self.options.output:
             # Figure with a single plot will be created
             pp = None
             def figure_saver(figure):
                 self.log.info("Saving plot to %s..." % self.options.output)
-                figure.savefig(self.options.output)
+                figure.savefig(self.options.output, bbox_inches="tight")
         else:
             # Figure will be shown on screen
             def figure_saver(figure):
@@ -168,7 +168,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
             curve = curve_class(bc_data)
 
             if self.options.resampling:
-                curve.resample([x/2000. for x in xrange(2001)])
+                curve.resample(x/2000. for x in xrange(2001))
 
             if self.options.show_auc:
                 aucs.append(curve.auc())

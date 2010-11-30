@@ -154,10 +154,15 @@ class BinaryConfusionMatrix(object):
 
     @axis_label("F-score")
     def f_score(self, f=1.0):
-        """Returns the F-score."""
+        """Returns the F-score.
+
+        The value of `f` controls the weighting between precision and recall
+        in the F-score formula. `f` = 1 means that equal importance is attached
+        to precision and recall. In general, recall is considered `f` times more
+        important than precision.
+        """
         sq = float(f*f)
-        sq1 = 1+sq
-        num = sq1 * self.tp
+        num = (1 + sq) * self.tp
         return num / (num + sq * self.fn + self.fp)
 
     @axis_label("Matthews correlation coefficient")

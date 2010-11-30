@@ -4,11 +4,12 @@ Curve classes used in YARD.
 This package contains implementations for all the curves YARD can plot.
 At the time of writing, this includes:
 
-    - ROC curves
-    - CROC curves
-    - Precision-recall curves
-    - Sensitivity-specificity plots
-    - Accumulation curves
+    - ROC curves (`ROCCurve`)
+    - CROC curves (`CROCCurve`)
+    - Precision-recall curves (`PrecisionRecallCurve`)
+    - Sensitivity-specificity plots (`SensitivitySpecificityCurve`)
+    - Accumulation curves (`AccumulationCurve`)
+    - F-score curves (`FScoreCurve`)
 """
 
 __author__  = "Tamas Nepusz"
@@ -302,7 +303,9 @@ class BinaryClassifierPerformanceCurve(Curve):
     and Y axes of the plot. If you are interested in ROC curves, see
     `ROCCurve`, which is a subclass of this class. If you are interested
     in precision-recall curves, see `PrecisionRecallCurve`, which is also
-    a subclass. Accumulation curves are implemented in `AccumulationCurve`.
+    a subclass. Accumulation curves are implemented in `AccumulationCurve`,
+    sensitivity-specificity plots are in `SensitivitySpecificityCurve`
+    etc.
     """
 
     def __init__(self, data, x_func, y_func):
@@ -784,5 +787,45 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
         """Returns a human-readable name of the curve that can be
         used in messages."""
         return "concentrated ROC curve"
+
+
+class FScoreCurve(BinaryClassifierPerformanceCurve):
+    """Class representing an F-score curve.
+    
+    An F-score curve plots the F-score on the Y axis versus the fraction
+    of data classified as positive on the X axis.
+    """
+
+    identifier = "fscore"
+
+    def __init__(self, data, f=1.0):
+        """Constructs an F-score curve from the given dataset.
+
+        The dataset must contain ``(x, y)`` pairs where `x` is a predicted
+        value and `y` defines whether the example is positive or negative.
+        When `y` is less than or equal to zero, it is considered a negative
+        example, otherwise it is positive. ``False`` also means a negative
+        and ``True`` also means a positive example. The dataset can also
+        be an instance of `BinaryClassifierData`.
+
+        The value of `f` controls the weighting between precision and recall
+        in the F-score formula. `f` = 1 means that equal importance is attached
+        to precision and recall. In general, recall is considered `f` times more
+        important than precision.
+        """
+        @axis_label("F-score")
+        def f_score(matrix):
+            """Internal function that binds the `f` parameter of
+            `BinaryConfusionMatrix.f_score` to the value specified in the constructor.
+            """
+            return BinaryConfusionMatrix.f_score(matrix, f)
+        super(FScoreCurve, self).__init__(data, BinaryConfusionMatrix.fdp, f_score)
+
+    @classmethod
+    def get_friendly_name(cls):
+        """Returns a human-readable name of the curve that can be
+        used in messages."""
+        return "F-score curve"
+
 
 
