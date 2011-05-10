@@ -111,7 +111,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
                      "according to various prediction methods. If the class "\
                      "column does not contain a numeric value, the whole row "\
                      "is considered as a header.",
-                default="1,2")
+                default=None)
         parser.add_option("-f", "--field-separator", dest="sep",
                 metavar="CHAR",
                 help="use the given separator CHARacter between columns. "\
@@ -152,14 +152,19 @@ class CommandLineAppForClassifierData(CommandLineApp):
 
         # Process self.options.columns
         self.cols = self.options.columns
-        try:
-            self.cols = self.parse_column_indices(self.cols)
-        except ValueError:
-            self.parser.error("Format error in column specification: %r" % self.cols)
-        if len(self.cols) == 1:
-            self.parser.error("Must specify at least two column indices")
-        if min(self.cols) < 0:
-            self.parser.error("Column indices must be positive")
+        if self.cols is not None:
+            # Using some columns only
+            try:
+                self.cols = self.parse_column_indices(self.cols)
+            except ValueError:
+                self.parser.error("Format error in column specification: %r" % self.cols)
+            if len(self.cols) == 1:
+                self.parser.error("Must specify at least two column indices")
+            if min(self.cols) < 0:
+                self.parser.error("Column indices must be positive")
+        else:
+            # Using all columns
+            pass
 
     def process_file(self, stream):
         """Processes the given input `stream` and stores the results in
@@ -169,12 +174,13 @@ class CommandLineAppForClassifierData(CommandLineApp):
             self.process_options()
 
         cols, sep = self.cols, self.sep
-
-        ncols = len(cols)
-        headers = ["Dataset %d" % idx for idx in xrange(ncols)]
-        headers[0] = "__class__"
-
         seen_header = False
+
+        if cols is not None:
+            # Prepare ncols and headers in advance here
+            ncols = len(cols)
+            headers = ["Dataset %d" % idx for idx in xrange(ncols)]
+            headers[0] = "__class__"
 
         for line in stream:
             line = line.strip()
@@ -182,21 +188,47 @@ class CommandLineAppForClassifierData(CommandLineApp):
                 continue
 
             parts = line.split(sep)
-            try:
-                int(float(parts[cols[0]]))
-            except (IndexError, ValueError):
-                # This is a header row
-                if seen_header:
-                    raise ValueError("duplicate header row in input file")
-                seen_header = True
-                headers[1:] = [parts[idx] for idx in cols[1:]]
-                anon_dataset_idx = 1
-                for idx, header in enumerate(headers):
-                    if not header:
-                        while ("Dataset %d" % anon_dataset_idx) in self.data:
-                            anon_dataset_idx += 1
-                        headers[idx] = "Dataset %d" % anon_dataset_idx
+            if not parts:
                 continue
+
+            if not seen_header:
+                # This is either a header row or a data row
+                if cols is None:
+                    colidx = 0
+                else:
+                    colidx = cols[0]
+
+                try:
+                    int(float(parts[colidx]))
+                except (IndexError, ValueError):
+                    # This is surely a header row
+                    seen_header = True
+                    if cols is None:
+                        # Prepare ncols now that we know the header
+                        cols = range(len(parts))
+                        ncols = len(parts)
+                        headers = list(parts)
+                        headers[0] = "__class__"
+                    else:
+                        headers[1:] = [parts[idx] for idx in cols[1:]]
+                    anon_dataset_idx = 1
+
+                    # Add dataset names for empty headers
+                    for idx, header in enumerate(headers):
+                        if not header:
+                            while ("Dataset %d" % anon_dataset_idx) in self.data:
+                                anon_dataset_idx += 1
+                            headers[idx] = "Dataset %d" % anon_dataset_idx
+                    continue
+
+                # This is a data row; there will be no header row. Set up the
+                # dataset names for all the columns if we did not specify
+                # columns in the input file
+                if cols is None:
+                    cols = range(len(parts))
+                    ncols = len(parts)
+                    headers = ["Dataset %d" % idx for idx in xrange(ncols)]
+                    headers[0] = "__class__"
 
             # This is a data row
             for i in xrange(ncols):
