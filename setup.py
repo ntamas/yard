@@ -4,7 +4,7 @@ from setuptools import setup
 import yard
 
 setup(name='yard',
-      version='0.1',
+      version=yard.__version__,
       author='Tamas Nepusz',
       author_email='tamas@cs.rhul.ac.uk',
       url='http://github.com/ntamas/yard',
