@@ -139,6 +139,9 @@ class Curve(object):
         if "legend" in kwds:
             legend = kwds["legend"]
             del kwds["legend"]
+        else:
+            legend = False
+
 
         # Get an empty figure and its axes, and plot the curve on the axes
         fig = self.get_empty_figure(*args, **kwds)
