@@ -381,9 +381,7 @@ class BinaryClassifierData(object):
 
         thresholds.append(float('inf'))
 
-        threshold = thresholds.pop(0)
-        result = self.get_confusion_matrix(threshold)
-        yield threshold, result
+        result = BinaryConfusionMatrix(tp=0,fp=0,tn=0,fn=0)
 
         row_idx, n = 0, len(self)
         for threshold in thresholds:
