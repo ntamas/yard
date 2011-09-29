@@ -311,7 +311,11 @@ class BinaryClassifierData(object):
         return point[0], point[1] > 0
 
     def get_confusion_matrix(self, threshold):
-        """Returns the confusion matrix at a given threshold
+        """Returns the confusion matrix at a given threshold.
+
+        The outcome corresponding to values larger than or equal to the
+        threshold is assumed to be 1 and the outcome correspondong to
+        values smaller than the threshold is assumed to be zero.
         
         Example::
             
@@ -359,33 +363,46 @@ class BinaryClassifierData(object):
         corresponding confusion matrix. This method can be used to
         generate ROC curves and it is more efficient than getting
         the confusion matrices one by one.
+
+        `thresholds` contains the thresholds for which we evaluate the
+        confusion matrix. If it is ``None``, all possible thresholds
+        from the dataset will be evaluated. If it is an integer `n`,
+        we will choose `n+1` threshold levels equidistantly from
+        the range `0-1` (so the thresholds divide the interval `0-1`
+        to `n` equal intervals). If it is an iterable, then each member
+        yielded by the iterable must be a threshold.
         
-        @param thresholds: the thresholds for which we evaluate the
-          confusion matrix. If it is ``None``, all possible thresholds
-          from the dataset will be evaluated. If it is an integer `n`,
-          we will choose `n` threshold levels equidistantly from
-          the range `0-1`. If it is an iterable, then each member
-          yielded by the iterable must be a threshold."""
+        Example::
+
+            >>> outcomes = [10, 20, 20, 30, 40]
+            >>> expected = [0, 1, 0, 0, 1]
+            >>> data = BinaryClassifierData(zip(outcomes, expected))
+            >>> thresholds = [20, 30, 40, 50]
+            >>> l1 = list(data.iter_confusion_matrices([20, 30, 40, 50]))
+            >>> l2 = [(x, data.get_confusion_matrix(x)) for x in thresholds]
+            >>> l1 == l2
+            True
+        """
         if not len(self):
             return
 
         if thresholds is None:
             thresholds = [pred for pred, _ in self.data]
+            thresholds.append(float('inf'))
         elif not hasattr(thresholds, "__iter__"):
             n = float(thresholds)
-            thresholds = [i/n for i in xrange(thresholds)]
+            thresholds = [i/n for i in xrange(thresholds+1)]
         thresholds = sorted(set(thresholds))
 
         if not thresholds:
             return
 
-        thresholds.append(float('inf'))
-
         threshold = thresholds.pop(0)
         result = self.get_confusion_matrix(threshold)
-        yield threshold, result
+        yield threshold, BinaryConfusionMatrix(result)
 
-        row_idx, n = 0, len(self)
+        n = len(self)
+        row_idx = bisect_left(self.data, (threshold, False))
         for threshold in thresholds:
             while row_idx < n:
                 row = self.data[row_idx]
