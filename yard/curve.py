@@ -190,7 +190,7 @@ class Curve(object):
         """
         # Plot the points
         xs, ys = zip(*self.points)
-        curve = axes.plot(xs, ys, style)
+        curve, = axes.plot(xs, ys, style)
 
         # Create the legend
         if legend is True:
