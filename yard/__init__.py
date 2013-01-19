@@ -25,5 +25,5 @@ __email__   = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
