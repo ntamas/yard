@@ -333,9 +333,9 @@ class BinaryClassifierPerformanceCurve(Curve):
         self.y_func = y_func
 
         if not hasattr(self.x_func, "__call__"):
-            raise TypeError, "x_func must be callable"
+            raise TypeError("x_func must be callable")
         if not hasattr(self.y_func, "__call__"):
-            raise TypeError, "y_func must be callable"
+            raise TypeError("y_func must be callable")
 
         self.data = data
 

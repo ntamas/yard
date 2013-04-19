@@ -7,7 +7,13 @@ __license__ = "MIT"
 
 from collections import deque
 from functools import wraps
-from string import maketrans
+
+try:
+    # Python 2.x
+    from string import maketrans
+except ImportError:
+    # Python 3.x
+    from string import maketrans
 
 import re
 
