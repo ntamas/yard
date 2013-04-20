@@ -13,7 +13,7 @@ try:
     from string import maketrans
 except ImportError:
     # Python 3.x
-    from string import maketrans
+    maketrans = str.maketrans
 
 import re
 
