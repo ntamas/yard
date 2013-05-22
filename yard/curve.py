@@ -627,7 +627,7 @@ class AccumulationCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(PrecisionRecallCurve, self).__init__(data,
+        super(AccumulationCurve, self).__init__(data,
             BinaryConfusionMatrix.fdp, BinaryConfusionMatrix.tpr)
 
     @classmethod
