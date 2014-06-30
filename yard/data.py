@@ -6,7 +6,6 @@ sensitivity, specificity, precision, recall, TPR, FPR and such.
 from __future__ import division
 
 from bisect import bisect_left
-from itertools import izip
 
 from yard.mathematics import rank
 from yard.utils import axis_label
