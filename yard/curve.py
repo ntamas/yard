@@ -18,10 +18,13 @@ __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
 from bisect import bisect
-from itertools import izip
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 from yard.transform import ExponentialTransformation
 from yard.utils import axis_label, itersubclasses
+try:
+    from itertools import izip
+except ImportError:
+    izip = zip
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
