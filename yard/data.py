@@ -10,6 +10,11 @@ from bisect import bisect_left
 from yard.mathematics import rank
 from yard.utils import axis_label
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
@@ -367,7 +372,7 @@ class BinaryClassifierData(object):
         confusion matrix. If it is ``None``, all possible thresholds
         from the dataset will be evaluated. If it is an integer `n`,
         we will choose `n+1` threshold levels equidistantly from
-        the range `0-1` (so the thresholds divide the interval `0-1`
+        the xrange `0-1` (so the thresholds divide the interval `0-1`
         to `n` equal intervals). If it is an iterable, then each member
         yielded by the iterable must be a threshold.
         
@@ -390,7 +395,7 @@ class BinaryClassifierData(object):
             thresholds.append(float('inf'))
         elif not hasattr(thresholds, "__iter__"):
             n = float(thresholds)
-            thresholds = [i/n for i in range(thresholds+1)]
+            thresholds = [i/n for i in xrange(thresholds+1)]
         thresholds = sorted(set(thresholds))
 
         if not thresholds:

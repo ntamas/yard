@@ -9,6 +9,11 @@ try:
 except ImportError:
     izip = zip
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 from yard.data import BinaryClassifierData
 from yard.curve import CurveFactory
 from yard.scripts import CommandLineAppForClassifierData
@@ -172,7 +177,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
             curve = curve_class(bc_data)
 
             if self.options.resampling:
-                curve.resample(x/2000. for x in range(2001))
+                curve.resample(x/2000. for x in xrange(2001))
 
             if self.options.show_auc:
                 aucs.append(curve.auc())
@@ -191,7 +196,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
         if aucs:
             # Sort the labels of the legend in decreasing order of AUC
-            indices = sorted(range(len(aucs)), key=aucs.__getitem__,
+            indices = sorted(xrange(len(aucs)), key=aucs.__getitem__,
                              reverse=True)
             line_handles = [line_handles[i] for i in indices]
             labels = [labels[i] for i in indices]

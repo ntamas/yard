@@ -26,6 +26,11 @@ try:
 except ImportError:
     izip = zip
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
 
@@ -89,7 +94,7 @@ class Curve(object):
         k = int(kwds["until"])
         n = len(points)
         step = (n-1) / (k-1.)
-        result = [points[int(idx*step)] for idx in range(1, k-1)]
+        result = [points[int(idx*step)] for idx in xrange(1, k-1)]
         result.append(points[-1])
         self._points = result
 
@@ -729,7 +734,7 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
 
         # Plot the no-discrimination curve
         if no_discrimination_curve:
-            ys = [y / 100. for y in range(101)]
+            ys = [y / 100. for y in xrange(101)]
             xs = [self._transformation(y) for y in ys]
             if isinstance(no_discrimination_curve, (tuple, list)):
                 color, linestyle = no_discrimination_curve
