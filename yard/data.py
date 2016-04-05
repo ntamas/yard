@@ -390,7 +390,7 @@ class BinaryClassifierData(object):
             thresholds.append(float('inf'))
         elif not hasattr(thresholds, "__iter__"):
             n = float(thresholds)
-            thresholds = [i/n for i in xrange(thresholds+1)]
+            thresholds = [i/n for i in range(thresholds+1)]
         thresholds = sorted(set(thresholds))
 
         if not thresholds:

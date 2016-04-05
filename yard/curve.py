@@ -89,7 +89,7 @@ class Curve(object):
         k = int(kwds["until"])
         n = len(points)
         step = (n-1) / (k-1.)
-        result = [points[int(idx*step)] for idx in xrange(1, k-1)]
+        result = [points[int(idx*step)] for idx in range(1, k-1)]
         result.append(points[-1])
         self._points = result
 
@@ -119,7 +119,7 @@ class Curve(object):
 
         # Create the axes, set the axis labels and the plot title
         axes = fig.add_subplot(111)
-        for name, value in kwds_extra.iteritems():
+        for name, value in kwds_extra.items():
             if value is not None:
                 getattr(axes, "set_%s" % name)(value)
 
@@ -729,7 +729,7 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
 
         # Plot the no-discrimination curve
         if no_discrimination_curve:
-            ys = [y / 100. for y in xrange(101)]
+            ys = [y / 100. for y in range(101)]
             xs = [self._transformation(y) for y in ys]
             if isinstance(no_discrimination_curve, (tuple, list)):
                 color, linestyle = no_discrimination_curve

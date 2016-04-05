@@ -167,7 +167,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
             curve = curve_class(bc_data)
 
             if self.options.resampling:
-                curve.resample(x/2000. for x in xrange(2001))
+                curve.resample(x/2000. for x in range(2001))
 
             if self.options.show_auc:
                 aucs.append(curve.auc())

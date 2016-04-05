@@ -36,7 +36,7 @@ except ImportError:
         """
         if size is None:
             return int(ceil(log(random(), 1.0-p)))
-        return [int(ceil(log(random(), 1.0-p))) for _ in xrange(size)]
+        return [int(ceil(log(random(), 1.0-p))) for _ in range(size)]
 
 #############################################################################
 
@@ -112,14 +112,14 @@ except ImportError:
 
             if dup_counter:
                 avg_rank = sum_ranks / float(dup_counter) + 1
-                for idx2 in xrange(idx-dup_counter, idx):
+                for idx2 in range(idx-dup_counter, idx):
                     ranks[order[idx2]] = avg_rank
 
             prev_value, sum_ranks, dup_counter = value, idx, 1
 
         if dup_counter:
             avg_rank = sum_ranks / float(dup_counter) + 1
-            for idx2 in xrange(n-dup_counter, n):
+            for idx2 in range(n-dup_counter, n):
                 ranks[order[idx2]] = avg_rank
 
         return ranks

@@ -88,7 +88,7 @@ class PairedPermutationTest(SignificanceTest):
         abs_observed_diff = abs(observed_diff)
         num_success = 0
 
-        for trial in xrange(self.num_repetitions):
+        for trial in range(self.num_repetitions):
             idx = 0
             while True:
                 idx += geometric(p=0.01)
