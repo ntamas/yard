@@ -372,7 +372,7 @@ class BinaryClassifierData(object):
         confusion matrix. If it is ``None``, all possible thresholds
         from the dataset will be evaluated. If it is an integer `n`,
         we will choose `n+1` threshold levels equidistantly from
-        the xrange `0-1` (so the thresholds divide the interval `0-1`
+        the range `0-1` (so the thresholds divide the interval `0-1`
         to `n` equal intervals). If it is an iterable, then each member
         yielded by the iterable must be a threshold.
         
