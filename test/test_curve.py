@@ -2,7 +2,6 @@
 
 import unittest
 
-from itertools import izip_longest
 from textwrap import dedent
 
 from yard.data import BinaryClassifierData
