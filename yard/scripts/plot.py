@@ -3,7 +3,12 @@ and accumulation curves."""
 
 import sys
 
-from itertools import cycle, izip
+from itertools import cycle
+try:
+    from itertools import izip
+except ImportError:
+    izip = zip
+
 from yard.data import BinaryClassifierData
 from yard.curve import CurveFactory
 from yard.scripts import CommandLineAppForClassifierData
