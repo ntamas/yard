@@ -56,7 +56,7 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
         expected = [4.378, 1.0, 0.043, 23.222]
         for matrix, exp in zip(self.matrices, expected):
             self.assertAlmostEqual(matrix.odds_ratio(), exp, 2)
-        self.assertEquals(str(self.matrices[4].odds_ratio()), "inf")
+        self.assertEqual(str(self.matrices[4].odds_ratio()), "inf")
 
 
 class BinaryClassifierDataTest(unittest.TestCase):
@@ -75,13 +75,13 @@ class BinaryClassifierDataTest(unittest.TestCase):
 
     def test_get_confusion_matrix(self):
         mat = self.data.get_confusion_matrix(0.2)
-        self.assertEquals(repr(mat), "BinaryConfusionMatrix(tp=5, fp=3, fn=0, tn=1)")
+        self.assertEqual(repr(mat), "BinaryConfusionMatrix(tp=5, fp=3, fn=0, tn=1)")
         mat = self.data.get_confusion_matrix(0.5)
-        self.assertEquals(repr(mat), "BinaryConfusionMatrix(tp=4, fp=1, fn=1, tn=3)")
+        self.assertEqual(repr(mat), "BinaryConfusionMatrix(tp=4, fp=1, fn=1, tn=3)")
         mat = self.data.get_confusion_matrix(0.75)
-        self.assertEquals(repr(mat), "BinaryConfusionMatrix(tp=2, fp=0, fn=3, tn=4)")
+        self.assertEqual(repr(mat), "BinaryConfusionMatrix(tp=2, fp=0, fn=3, tn=4)")
         mat = self.data.get_confusion_matrix(1.0)
-        self.assertEquals(repr(mat), "BinaryConfusionMatrix(tp=0, fp=0, fn=5, tn=4)")
+        self.assertEqual(repr(mat), "BinaryConfusionMatrix(tp=0, fp=0, fn=5, tn=4)")
 
     def test_iter_confusion_matrices(self):
         expected = """\
@@ -99,8 +99,8 @@ class BinaryClassifierDataTest(unittest.TestCase):
                     for line in dedent(expected).split("\n")]
         for (threshold, matrix), expected in \
                 izip_longest(self.data.iter_confusion_matrices(), expected):
-            self.assertEquals(repr(matrix), expected)
-            self.assertEquals(matrix, self.data.get_confusion_matrix(threshold))
+            self.assertEqual(repr(matrix), expected)
+            self.assertEqual(matrix, self.data.get_confusion_matrix(threshold))
 
         expected = """\
         tp=5, fp=4, fn=0, tn=0
@@ -112,8 +112,8 @@ class BinaryClassifierDataTest(unittest.TestCase):
                     for line in dedent(expected).split("\n")]
         for (threshold, matrix), expected in \
                 izip_longest(self.data.iter_confusion_matrices(4), expected):
-            self.assertEquals(repr(matrix), expected)
-            self.assertEquals(matrix, self.data.get_confusion_matrix(threshold))
+            self.assertEqual(repr(matrix), expected)
+            self.assertEqual(matrix, self.data.get_confusion_matrix(threshold))
 
 
 if __name__ == "__main__":

@@ -13,17 +13,17 @@ class CurveTest(unittest.TestCase):
         self.data = Curve([(1,2), (3,4), (5,5), (7,0)])
 
     def test_get_interpolated_point(self):
-        self.failUnless(self.data.get_interpolated_point(1)   ==   (1, 2))
-        self.failUnless(self.data.get_interpolated_point(5)   ==   (5, 5))
-        self.failUnless(self.data.get_interpolated_point(2)   ==   (2, 3))
-        self.failUnless(self.data.get_interpolated_point(2.5) == (2.5, 3.5))
-        self.failUnless(self.data.get_interpolated_point(0)   ==   (0, 1))
-        self.failUnless(self.data.get_interpolated_point(-1)  ==  (-1, 0))
-        self.failUnless(self.data.get_interpolated_point(9)   ==  (9, -5))
+        self.assertTrue(self.data.get_interpolated_point(1)   ==   (1, 2))
+        self.assertTrue(self.data.get_interpolated_point(5)   ==   (5, 5))
+        self.assertTrue(self.data.get_interpolated_point(2)   ==   (2, 3))
+        self.assertTrue(self.data.get_interpolated_point(2.5) == (2.5, 3.5))
+        self.assertTrue(self.data.get_interpolated_point(0)   ==   (0, 1))
+        self.assertTrue(self.data.get_interpolated_point(-1)  ==  (-1, 0))
+        self.assertTrue(self.data.get_interpolated_point(9)   ==  (9, -5))
 
     def test_resample(self):
         self.data.resample([0, 2, 4, 6, 8])
-        self.failUnless(self.data.points == \
+        self.assertTrue(self.data.points == \
              [(0, 1), (2, 3), (4, 4.5), (6, 2.5), (8, -2.5)]
         )
 
@@ -43,10 +43,10 @@ class ROCCurveTest(unittest.TestCase):
         self.curve = ROCCurve(self.data)
 
     def test_auc_superclass(self):
-        self.assertAlmostEquals(0.95, Curve.auc(self.curve), 8)
+        self.assertAlmostEqual(0.95, Curve.auc(self.curve), 8)
 
     def test_auc(self):
-        self.assertAlmostEquals(0.95, self.curve.auc(), 8)
+        self.assertAlmostEqual(0.95, self.curve.auc(), 8)
 
     def test_get_points(self):
         expected = reversed([(1.0, 1.0), (0.75, 1.0), (0.5, 1.0), (0.25, 1.0), \
@@ -54,7 +54,7 @@ class ROCCurveTest(unittest.TestCase):
                 (0.0, 0.2), (0.0, 0.0)])
         for obs, exp in zip(self.curve.points, expected):
             for x, y in zip(obs, exp):
-                self.assertAlmostEquals(x, y, 5)
+                self.assertAlmostEqual(x, y, 5)
 
 
 if __name__ == "__main__":

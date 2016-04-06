@@ -1,4 +1,6 @@
 *.pyc
 *.egg-info
 *.swp
+build/*
 dist/*
+.tox
