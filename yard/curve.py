@@ -26,6 +26,11 @@ try:
 except ImportError:
     izip = zip
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
 
@@ -119,7 +124,7 @@ class Curve(object):
 
         # Create the axes, set the axis labels and the plot title
         axes = fig.add_subplot(111)
-        for name, value in kwds_extra.iteritems():
+        for name, value in kwds_extra.items():
             if value is not None:
                 getattr(axes, "set_%s" % name)(value)
 

@@ -18,6 +18,11 @@ from collections import defaultdict
 from optparse import OptionParser
 from textwrap import dedent
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
@@ -130,7 +135,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
         for part in parts:
             if "-" in part:
                 start, end = [int(idx) for idx in part.split("-", 1)]
-                result.extend(range(start-1, end))
+                result.extend(xrange(start-1, end))
             else:
                 result.append(int(part)-1)
         return result

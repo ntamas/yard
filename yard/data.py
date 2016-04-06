@@ -10,6 +10,11 @@ from bisect import bisect_left
 from yard.mathematics import rank
 from yard.utils import axis_label
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 __author__  = "Tamas Nepusz"
 __email__   = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
@@ -291,7 +296,7 @@ class BinaryClassifierData(object):
         else:
             self.data = sorted(self._normalize_point(point) for point in data)
         self.title = title
-        self.total_positives = sum(point[1] > 0 for point in data)
+        self.total_positives = sum(point[1] > 0 for point in self.data)
         self.total_negatives = len(self.data) - self.total_positives
 
     def __getitem__(self, index):
@@ -432,7 +437,12 @@ class BinaryClassifierData(object):
     @title.setter
     def title(self, value):
         """Sets the title of the plot"""
-        if value is None or isinstance(value, (str, unicode)):
+        try:
+            types = (str,unicode)
+        except:
+            types = str
+
+        if value is None or isinstance(value, types):
             self._title = value
         else:
             self._title = str(value)

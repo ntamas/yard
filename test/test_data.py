@@ -2,7 +2,12 @@
 
 import unittest
 
-from itertools import izip_longest
+try:
+    from itertools import izip_longest
+except:
+    from itertools import zip_longest
+    izip_longest = zip_longest
+
 from textwrap import dedent
 
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData

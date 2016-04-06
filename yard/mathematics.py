@@ -14,6 +14,11 @@ __license__ = "MIT"
 
 from yard.utils import vectorized
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 #############################################################################
 
 try:
@@ -98,7 +103,7 @@ except ImportError:
         """
         n = len(vector)
         if not ties:
-            return [rank+1 for rank in sorted(range(n), key=vector.__getitem__)]
+            return [rank+1 for rank in sorted(xrange(n), key=vector.__getitem__)]
 
         values, order = zip(*sorted((value, idx) for idx, value in enumerate(vector)))
         ranks = [0] * n
