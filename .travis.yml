@@ -6,13 +6,6 @@ python:
   - "pypy"
   - "pypy3"
 
-addons:
-  apt:
-    packages:
-    - gfortran
-    - flex
-    - bison
-
 install:
   - pip install tox-travis
 
