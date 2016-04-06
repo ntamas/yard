@@ -210,7 +210,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
                     seen_header = True
                     if cols is None:
                         # Prepare ncols now that we know the header
-                        cols = xrange(len(parts))
+                        cols = range(len(parts))
                         ncols = len(parts)
                         headers = list(parts)
                         headers[0] = "__class__"
@@ -230,7 +230,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
                 # dataset names for all the columns if we did not specify
                 # columns in the input file
                 if cols is None:
-                    cols = xrange(len(parts))
+                    cols = range(len(parts))
                     ncols = len(parts)
                     headers = ["Dataset %d" % idx for idx in xrange(ncols)]
                     headers[0] = "__class__"
