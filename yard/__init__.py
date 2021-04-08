@@ -21,8 +21,7 @@ from yard.data import *
 from yard.curve import *
 from yard.version import __version__
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010-2016, Tamas Nepusz"
 __license__ = "MIT"
-

@@ -15,8 +15,8 @@ try:
 except NameError:
     xrange = range
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
@@ -94,7 +94,7 @@ class BinaryConfusionMatrix(object):
     @axis_label("Fraction of data classified negative")
     def fdn(self):
         """Returns the fraction of data classified as negative (FDN)
-        
+
         Example::
 
             >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
@@ -108,7 +108,7 @@ class BinaryConfusionMatrix(object):
     @axis_label("Fraction of data classified positive")
     def fdp(self):
         """Returns the fraction of data classified as positive (FDP)
-        
+
         Example::
 
             >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
@@ -123,7 +123,7 @@ class BinaryConfusionMatrix(object):
     def fdr(self):
         """Returns the false discovery date (FDR), also known as prediction
         conditioned fallout. It is defined as FP / (TP+FP).
-        
+
         Example::
 
             >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
@@ -135,7 +135,7 @@ class BinaryConfusionMatrix(object):
     @axis_label("False negative rate")
     def fnr(self):
         """Returns the false negative rate (FNR), i.e. FN / (FN + TP).
-        
+
         Example::
 
             >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
@@ -147,7 +147,7 @@ class BinaryConfusionMatrix(object):
     @axis_label("False positive rate")
     def fpr(self):
         """Returns the false positive rate (FPR), i.e. FP / (FP + TN).
-        
+
         Example::
 
             >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
@@ -165,7 +165,7 @@ class BinaryConfusionMatrix(object):
         to precision and recall. In general, recall is considered `f` times more
         important than precision.
         """
-        sq = float(f*f)
+        sq = float(f * f)
         num = (1 + sq) * self.tp
         return num / (num + sq * self.fn + self.fp)
 
@@ -174,16 +174,16 @@ class BinaryConfusionMatrix(object):
         """Returns the Matthews correlation coefficient (also known as
         phi correlation coefficient)"""
         num = self.tp * self.tn - self.fp * self.fn
-        den = (self.tp + self.fp)
-        den *= (self.tp + self.fn)
-        den *= (self.tn + self.fp)
-        den *= (self.tn + self.fn)
+        den = self.tp + self.fp
+        den *= self.tp + self.fn
+        den *= self.tn + self.fp
+        den *= self.tn + self.fn
         return num / (den ** 0.5)
 
     @axis_label("Negative predictive value")
     def npv(self):
         """Returns the negative predictive value (NPV), i.e. TN / (TN+FN).
-        
+
         Example::
 
             >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
@@ -195,7 +195,7 @@ class BinaryConfusionMatrix(object):
     @axis_label("Odds ratio")
     def odds_ratio(self):
         """Returns the odds ratio.
-        
+
         Example::
 
             >>> matrix = BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72)
@@ -205,7 +205,7 @@ class BinaryConfusionMatrix(object):
         num = self.tp * self.tn
         den = self.fp * self.fn
         if den == 0:
-            return float('nan') if num == 0 else float('inf')
+            return float("nan") if num == 0 else float("inf")
         return num / den
 
     @axis_label("Precision")
@@ -245,8 +245,12 @@ class BinaryConfusionMatrix(object):
         return self.tn / (self.fp + self.tn)
 
     def __eq__(self, other):
-        return self.tp == other.tp and self.tn == other.tn and \
-               self.fp == other.fp and self.fn == other.fn
+        return (
+            self.tp == other.tp
+            and self.tn == other.tn
+            and self.fp == other.fp
+            and self.fn == other.fn
+        )
 
     def __getitem__(self, coords):
         obs, exp = coords
@@ -256,8 +260,13 @@ class BinaryConfusionMatrix(object):
         return hash((self.tp, self.tn, self.fp, self.fn))
 
     def __repr__(self):
-        return "%s(tp=%d, fp=%d, fn=%d, tn=%d)" % \
-                (self.__class__.__name__, self.tp, self.fp, self.fn, self.tn)
+        return "%s(tp=%d, fp=%d, fn=%d, tn=%d)" % (
+            self.__class__.__name__,
+            self.tp,
+            self.fp,
+            self.fn,
+            self.tn,
+        )
 
     def __setitem__(self, coords, value):
         obs, exp = coords
@@ -272,7 +281,7 @@ class BinaryConfusionMatrix(object):
     miss = fnr
     phi = mcc
 
-    
+
 class BinaryClassifierData(object):
     """Class representing the output of a binary classifier.
 
@@ -310,7 +319,7 @@ class BinaryClassifierData(object):
         """Normalizes a data point by setting the second element
         (which tells whether the example is positive or negative)
         to either ``True`` or ``False``.
-        
+
         Returns the new data point as a tuple."""
         return point[0], point[1] > 0
 
@@ -320,9 +329,9 @@ class BinaryClassifierData(object):
         The outcome corresponding to values larger than or equal to the
         threshold is assumed to be 1 and the outcome correspondong to
         values smaller than the threshold is assumed to be zero.
-        
+
         Example::
-            
+
             >>> outcomes = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
             >>> expected = [0, 0, 0, 1, 0, 1, 1, 1, 1]
             >>> data = BinaryClassifierData(zip(outcomes, expected))
@@ -375,7 +384,7 @@ class BinaryClassifierData(object):
         the range `0-1` (so the thresholds divide the interval `0-1`
         to `n` equal intervals). If it is an iterable, then each member
         yielded by the iterable must be a threshold.
-        
+
         Example::
 
             >>> outcomes = [10, 20, 20, 30, 40]
@@ -392,10 +401,10 @@ class BinaryClassifierData(object):
 
         if thresholds is None:
             thresholds = [pred for pred, _ in self.data]
-            thresholds.append(float('inf'))
+            thresholds.append(float("inf"))
         elif not hasattr(thresholds, "__iter__"):
             n = float(thresholds)
-            thresholds = [i/n for i in xrange(thresholds+1)]
+            thresholds = [i / n for i in xrange(thresholds + 1)]
         thresholds = sorted(set(thresholds))
 
         if not thresholds:
@@ -428,7 +437,7 @@ class BinaryClassifierData(object):
                     result.fp -= 1
                 row_idx += 1
             yield threshold, BinaryConfusionMatrix(result)
-    
+
     @property
     def title(self):
         """The title of the plot"""
@@ -438,7 +447,7 @@ class BinaryClassifierData(object):
     def title(self, value):
         """Sets the title of the plot"""
         try:
-            types = (str,unicode)
+            types = (str, unicode)
         except:
             types = str
 
@@ -446,5 +455,3 @@ class BinaryClassifierData(object):
             self._title = value
         else:
             self._title = str(value)
-
-

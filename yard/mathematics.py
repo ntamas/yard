@@ -7,8 +7,8 @@ on working without them. If you have NumPy or SciPy, ``yard`` simply imports
 the appropriate routines from there.
 """
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
@@ -40,8 +40,9 @@ except ImportError:
         be a list containing `size` elements.
         """
         if size is None:
-            return int(ceil(log(random(), 1.0-p)))
-        return [int(ceil(log(random(), 1.0-p))) for _ in xrange(size)]
+            return int(ceil(log(random(), 1.0 - p)))
+        return [int(ceil(log(random(), 1.0 - p))) for _ in xrange(size)]
+
 
 #############################################################################
 
@@ -56,9 +57,9 @@ except ImportError:
         for negative numbers.
         """
         if item < 0:
-            return float('nan')
+            return float("nan")
         if item == 0:
-            return float('-inf')
+            return float("-inf")
         return math_log(item)
 
     log = vectorized(_safelog)
@@ -68,23 +69,26 @@ except ImportError:
 try:
     from numpy import power
 except ImportError:
+
     def power(item, exponent):
         """Raises `item` to the given `exponent` and returns the result.
         `item` or `exponent` (but not both) may also be an iterable. In
         this case, the result will be a list, and exponentiation will be
         done elementwise."""
         if hasattr(item, "__iter__"):
-            return [i**exponent for i in item]
+            return [i ** exponent for i in item]
         if hasattr(exponent, "__iter__"):
-            return [item**i for i in exponent]
-        return item**exponent
+            return [item ** i for i in exponent]
+        return item ** exponent
+
 
 #############################################################################
 
 try:
     from scipy.stats import rankdata as rank
 except ImportError:
-    def rank(vector, ties = True):
+
+    def rank(vector, ties=True):
         """Returns the rank vector of a given vector. `ties` specifies
         whether we want to account for ties or not.
 
@@ -103,7 +107,7 @@ except ImportError:
         """
         n = len(vector)
         if not ties:
-            return [rank+1 for rank in sorted(xrange(n), key=vector.__getitem__)]
+            return [rank + 1 for rank in sorted(xrange(n), key=vector.__getitem__)]
 
         values, order = zip(*sorted((value, idx) for idx, value in enumerate(vector)))
         ranks = [0] * n
@@ -117,15 +121,14 @@ except ImportError:
 
             if dup_counter:
                 avg_rank = sum_ranks / float(dup_counter) + 1
-                for idx2 in xrange(idx-dup_counter, idx):
+                for idx2 in xrange(idx - dup_counter, idx):
                     ranks[order[idx2]] = avg_rank
 
             prev_value, sum_ranks, dup_counter = value, idx, 1
 
         if dup_counter:
             avg_rank = sum_ranks / float(dup_counter) + 1
-            for idx2 in xrange(n-dup_counter, n):
+            for idx2 in xrange(n - dup_counter, n):
                 ranks[order[idx2]] = avg_rank
 
         return ranks
-

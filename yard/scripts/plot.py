@@ -4,6 +4,7 @@ and accumulation curves."""
 import sys
 
 from itertools import cycle
+
 try:
     from itertools import izip
 except ImportError:
@@ -19,10 +20,11 @@ from yard.curve import CurveFactory
 from yard.scripts import CommandLineAppForClassifierData
 from yard.utils import parse_size
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
+
 
 class ROCPlotterApplication(CommandLineAppForClassifierData):
     """\
@@ -49,41 +51,80 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
         parser = self.parser
 
-        parser.add_option("-t", "--curve-type", dest="curve_types",
-                metavar="TYPE", choices=CurveFactory.get_curve_names(),
-                action="append", default=[],
-                help="sets the TYPE of the curve to be plotted "
-                     "(roc, pr, ac, sespe or croc). May be specified "
-                     "multiple times.")
-        parser.add_option("-l", "--log-scale", dest="log_scale",
-                metavar="AXES",
-                help="use logarithmic scale on the given AXES. "
-                     "Valid values: none, x, y and xy",
-                choices=["none", "x", "y", "xy"], default="none")
-        parser.add_option("-o", "--output", dest="output", metavar="FILE",
-                help="saves the plot to the given FILE instead of showing it",
-                default=None)
-        parser.add_option("-s", "--size", dest="size", metavar="WIDTHxHEIGHT",
-                help="sets the size of the figure to WIDTHxHEIGHT, where "
-                     "WIDTH and HEIGHT are measures in inches. You may "
-                     "specify alternative measures (cm or mm) by adding "
-                     "them as a suffix; e.g., \"6cmx4cm\" or \"6cm x 4cm\"",
-                 default=None)
-        parser.add_option("--dpi", dest="dpi", metavar="DPI",
-                type=float, default=72.0,
-                help="specifies the dpi value (dots per inch) when "
-                     "converting pixels to inches and vice versa "
-                     "in figure and font size calculations. "
-                     "Default: %default")
-        parser.add_option("--font-size", dest="font_size", metavar="SIZE",
-                type=float, default=None,
-                help="overrides the font size to be used on figures, "
-                     "in points (pt).")
-        parser.add_option("--show-auc", dest="show_auc", action="store_true",
-                default=False, help="shows the AUC scores in the legend")
-        parser.add_option("--no-resampling", dest="resampling", action="store_false",
-                default=True, help="don't resample curves before "
-                                   "plotting and AUC calculation")
+        parser.add_option(
+            "-t",
+            "--curve-type",
+            dest="curve_types",
+            metavar="TYPE",
+            choices=CurveFactory.get_curve_names(),
+            action="append",
+            default=[],
+            help="sets the TYPE of the curve to be plotted "
+            "(roc, pr, ac, sespe or croc). May be specified "
+            "multiple times.",
+        )
+        parser.add_option(
+            "-l",
+            "--log-scale",
+            dest="log_scale",
+            metavar="AXES",
+            help="use logarithmic scale on the given AXES. "
+            "Valid values: none, x, y and xy",
+            choices=["none", "x", "y", "xy"],
+            default="none",
+        )
+        parser.add_option(
+            "-o",
+            "--output",
+            dest="output",
+            metavar="FILE",
+            help="saves the plot to the given FILE instead of showing it",
+            default=None,
+        )
+        parser.add_option(
+            "-s",
+            "--size",
+            dest="size",
+            metavar="WIDTHxHEIGHT",
+            help="sets the size of the figure to WIDTHxHEIGHT, where "
+            "WIDTH and HEIGHT are measures in inches. You may "
+            "specify alternative measures (cm or mm) by adding "
+            'them as a suffix; e.g., "6cmx4cm" or "6cm x 4cm"',
+            default=None,
+        )
+        parser.add_option(
+            "--dpi",
+            dest="dpi",
+            metavar="DPI",
+            type=float,
+            default=72.0,
+            help="specifies the dpi value (dots per inch) when "
+            "converting pixels to inches and vice versa "
+            "in figure and font size calculations. "
+            "Default: %default",
+        )
+        parser.add_option(
+            "--font-size",
+            dest="font_size",
+            metavar="SIZE",
+            type=float,
+            default=None,
+            help="overrides the font size to be used on figures, " "in points (pt).",
+        )
+        parser.add_option(
+            "--show-auc",
+            dest="show_auc",
+            action="store_true",
+            default=False,
+            help="shows the AUC scores in the legend",
+        )
+        parser.add_option(
+            "--no-resampling",
+            dest="resampling",
+            action="store_false",
+            default=True,
+            help="don't resample curves before " "plotting and AUC calculation",
+        )
 
     def run_real(self):
         """Runs the main application"""
@@ -99,7 +140,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
         # Set up the font size
         if self.options.font_size is not None:
-            for param in ['font.size', 'legend.fontsize']:
+            for param in ["font.size", "legend.fontsize"]:
                 matplotlib.rcParams[param] = self.options.font_size
 
         # Get the types of the curves to be plotted
@@ -113,29 +154,34 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
         # Do we have multiple curve types? If so, we need PDF output
         pp = None
         if len(curve_classes) > 1:
-            if not self.options.output or \
-               not self.options.output.endswith(".pdf"):
+            if not self.options.output or not self.options.output.endswith(".pdf"):
                 self.parser.error("multiple curves can only be plotted to PDF")
 
             try:
                 from matplotlib.backends.backend_pdf import PdfPages
             except ImportError:
-                self.parser.error("Matplotlib is too old and does not have "
-                        "multi-page PDF support yet. Please upgrade it to "
-                        "Matplotlib 0.99 or later")
+                self.parser.error(
+                    "Matplotlib is too old and does not have "
+                    "multi-page PDF support yet. Please upgrade it to "
+                    "Matplotlib 0.99 or later"
+                )
 
             pp = PdfPages(self.options.output)
+
             def figure_saver(figure):
                 pp.savefig(figure, bbox_inches="tight")
+
         elif self.options.output:
             # Figure with a single plot will be created
             def figure_saver(figure):
                 self.log.info("Saving plot to %s..." % self.options.output)
                 figure.savefig(self.options.output, bbox_inches="tight")
+
         else:
             # Figure will be shown on screen
             def figure_saver(figure):
                 import matplotlib.pyplot as plt
+
                 plt.show()
 
         self.process_input_files()
@@ -163,21 +209,36 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
         keys = sorted(data.keys())
         keys.remove("__class__")
 
-        styles = ["r-",  "b-",  "g-",  "c-",  "m-",  "y-",  "k-", \
-                  "r--", "b--", "g--", "c--", "m--", "y--", "k--"]
+        styles = [
+            "r-",
+            "b-",
+            "g-",
+            "c-",
+            "m-",
+            "y-",
+            "k-",
+            "r--",
+            "b--",
+            "g--",
+            "c--",
+            "m--",
+            "y--",
+            "k--",
+        ]
 
         # Plot the curves
         line_handles, labels, aucs = [], [], []
         for key, style in izip(keys, cycle(styles)):
-            self.log.info("Calculating %s for %s..." %
-                    (curve_class.get_friendly_name(), key))
+            self.log.info(
+                "Calculating %s for %s..." % (curve_class.get_friendly_name(), key)
+            )
             observed = data[key]
 
             bc_data = BinaryClassifierData(zip(observed, expected), title=key)
             curve = curve_class(bc_data)
 
             if self.options.resampling:
-                curve.resample(x/2000. for x in xrange(2001))
+                curve.resample(x / 2000.0 for x in xrange(2001))
 
             if self.options.show_auc:
                 aucs.append(curve.auc())
@@ -187,8 +248,9 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
             if not fig:
                 dpi = self.options.dpi
-                fig = curve.get_empty_figure(dpi=dpi,
-                        figsize=parse_size(self.options.size, dpi=dpi))
+                fig = curve.get_empty_figure(
+                    dpi=dpi, figsize=parse_size(self.options.size, dpi=dpi)
+                )
                 axes = fig.get_axes()[0]
 
             line_handle = curve.plot_on_axes(axes, style=style, legend=False)
@@ -196,8 +258,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 
         if aucs:
             # Sort the labels of the legend in decreasing order of AUC
-            indices = sorted(xrange(len(aucs)), key=aucs.__getitem__,
-                             reverse=True)
+            indices = sorted(xrange(len(aucs)), key=aucs.__getitem__, reverse=True)
             line_handles = [line_handles[i] for i in indices]
             labels = [labels[i] for i in indices]
             aucs = [aucs[i] for i in indices]
@@ -213,7 +274,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
                 axes.set_yscale("log")
 
             # Plot the legend
-            axes.legend(line_handles, labels, loc = legend_pos)
+            axes.legend(line_handles, labels, loc=legend_pos)
 
         return fig
 
@@ -221,6 +282,7 @@ class ROCPlotterApplication(CommandLineAppForClassifierData):
 def main():
     """Entry point for the plotter script"""
     sys.exit(ROCPlotterApplication().run())
+
 
 if __name__ == "__main__":
     main()

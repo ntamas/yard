@@ -10,10 +10,11 @@ from yard.data import BinaryClassifierData
 from yard.scripts import CommandLineAppForClassifierData
 from yard.significance import PairedPermutationTest
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
+
 
 class SignificanceTestApplication(CommandLineAppForClassifierData):
     """\
@@ -41,11 +42,16 @@ class SignificanceTestApplication(CommandLineAppForClassifierData):
 
         parser = self.parser
 
-        parser.add_option("-t", "--curve-type", dest="curve_type",
-                metavar="TYPE", choices=("roc", "croc"),
-                default="roc", 
-                help="sets the TYPE of the curve whose AUC is to be "
-                     "calculated and tested (roc or croc)")
+        parser.add_option(
+            "-t",
+            "--curve-type",
+            dest="curve_type",
+            metavar="TYPE",
+            choices=("roc", "croc"),
+            default="roc",
+            help="sets the TYPE of the curve whose AUC is to be "
+            "calculated and tested (roc or croc)",
+        )
 
     def run_real(self):
         """Runs the main application"""
@@ -85,14 +91,16 @@ class SignificanceTestApplication(CommandLineAppForClassifierData):
                 stars = "*"
             else:
                 stars = ""
-            self.log.info("%3s   d=%8.3g   p=%8.3g   %s vs %s" %
-                          (stars, diff, p_value, key1, key2))
+            self.log.info(
+                "%3s   d=%8.3g   p=%8.3g   %s vs %s"
+                % (stars, diff, p_value, key1, key2)
+            )
 
 
 def main():
     """Entry point for the significance testing script"""
     sys.exit(SignificanceTestApplication().run())
 
+
 if __name__ == "__main__":
     main()
-

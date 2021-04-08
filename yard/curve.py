@@ -12,8 +12,8 @@ At the time of writing, this includes:
     - F-score curves (`FScoreCurve`)
 """
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
 
@@ -21,6 +21,7 @@ from bisect import bisect
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 from yard.transform import ExponentialTransformation
 from yard.utils import axis_label, itersubclasses
+
 try:
     from itertools import izip
 except ImportError:
@@ -30,6 +31,7 @@ try:
     xrange
 except NameError:
     xrange = range
+
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
@@ -46,14 +48,16 @@ class Curve(object):
 
     def auc(self):
         """Returns the area under the curve.
-        
+
         The area is calculated using a trapezoidal approximation to make the
         AUC of the `ROCCurve` class relate to the Gini coefficient (where
         G1 + 1 = 2 * AUC).
         """
         points = self.points
-        auc = sum((y0+y1) / 2. * (x1-x0) \
-                  for (x0, y0), (x1, y1) in izip(points, points[1:]))
+        auc = sum(
+            (y0 + y1) / 2.0 * (x1 - x0)
+            for (x0, y0), (x1, y1) in izip(points, points[1:])
+        )
         return auc
 
     def coarsen(self, **kwds):
@@ -93,8 +97,8 @@ class Curve(object):
 
         k = int(kwds["until"])
         n = len(points)
-        step = (n-1) / (k-1.)
-        result = [points[int(idx*step)] for idx in xrange(1, k-1)]
+        step = (n - 1) / (k - 1.0)
+        result = [points[int(idx * step)] for idx in xrange(1, k - 1)]
         result.append(points[-1])
         self._points = result
 
@@ -137,7 +141,7 @@ class Curve(object):
         The arguments of this function are passed on intact to
         `get_empty_figure()`, except the following which are
         interpreted here:
-            
+
             - `legend`: whether we want a legend on the figure or not.
               If ``False``, no legend will be shown. If ``True``,
               `matplotlib` will try to place the legend in an
@@ -149,7 +153,6 @@ class Curve(object):
             del kwds["legend"]
         else:
             legend = False
-
 
         # Get an empty figure and its axes, and plot the curve on the axes
         fig = self.get_empty_figure(*args, **kwds)
@@ -185,11 +188,11 @@ class Curve(object):
             (x1, y1), (x2, y2) = points[-2:]
         else:
             # Truly interpolating
-            (x1, y1), (x2, y2) = points[pos-1:pos+1]
-        r = (x2-x)/float(x2-x1)
-        return (x, y1*r + y2*(1-r))
+            (x1, y1), (x2, y2) = points[pos - 1 : pos + 1]
+        r = (x2 - x) / float(x2 - x1)
+        return (x, y1 * r + y2 * (1 - r))
 
-    def plot_on_axes(self, axes, style='r-', legend=True):
+    def plot_on_axes(self, axes, style="r-", legend=True):
         """Plots the curve on the given `matplotlib.Axes` object.
         `style` specifies the style of the curve using ordinary
         ``matplotlib`` conventions. `legend` specifies the position
@@ -198,7 +201,7 @@ class Curve(object):
         """
         # Plot the points
         xs, ys = zip(*self.points)
-        curve, = axes.plot(xs, ys, style)
+        (curve,) = axes.plot(xs, ys, style)
 
         # Create the legend
         if legend is True:
@@ -206,14 +209,14 @@ class Curve(object):
         if legend is not None and legend is not False:
             label = self._data.title
             if label is not None:
-                axes.legend(curve, (label, ), legend)
+                axes.legend(curve, (label,), legend)
 
         return curve
 
     @property
     def points(self):
         """Returns the points of this curve as a list of 2-tuples.
-        
+
         The returned list is the same as the list used internally in
         the instance. Don't modify it unless you know what you're doing.
         """
@@ -264,7 +267,7 @@ class Curve(object):
 
 class CurveFactory(object):
     """Factory class to construct `Curve` instances from short identifiers.
-    
+
     Short identifiers for curve types are typically used in the command-line
     interface of `yard` to let the user specify which curve he/she wants to
     plot. This factory class interprets the short identifiers and constructs
@@ -275,7 +278,7 @@ class CurveFactory(object):
     def construct_from_name(cls, name, *args, **kwds):
         """Constructs a curve from a short name used in command line arguments
         across the whole ``yard`` package.
-        
+
         `name` is matched against the ``identifier`` class-level properties of
         all the subclasses of `Curve` to find the subclass to be constructed.
         All the remaining arguments are passed on intact to the constructor of
@@ -288,7 +291,7 @@ class CurveFactory(object):
     def find_class_by_name(name):
         """Finds the class corresponding to a given short name used in command
         line arguments across the whole ``yard`` package.
-        
+
         `name` is matched against the ``identifier`` class-level properties of
         all the subclasses of `Curve` to find the subclass to be constructed.
         Returns the found subclass (not an instance of it), or raises
@@ -302,8 +305,13 @@ class CurveFactory(object):
 
     @staticmethod
     def get_curve_names():
-        return sorted([cls.identifier for cls in itersubclasses(Curve)
-                if hasattr(cls, "identifier")])
+        return sorted(
+            [
+                cls.identifier
+                for cls in itersubclasses(Curve)
+                if hasattr(cls, "identifier")
+            ]
+        )
 
 
 class BinaryClassifierPerformanceCurve(Curve):
@@ -350,8 +358,10 @@ class BinaryClassifierPerformanceCurve(Curve):
     def _calculate_points(self):
         """Returns the actual points of the curve as a list of tuples."""
         x_func, y_func = self.x_func, self.y_func
-        self.points = [(x_func(mat), y_func(mat)) for _, mat in \
-                self._data.iter_confusion_matrices()]
+        self.points = [
+            (x_func(mat), y_func(mat))
+            for _, mat in self._data.iter_confusion_matrices()
+        ]
 
     @property
     def data(self):
@@ -400,8 +410,9 @@ class BinaryClassifierPerformanceCurve(Curve):
         if "ylabel" not in kwds:
             kwds["ylabel"] = infer_label(self.y_func)
 
-        return super(BinaryClassifierPerformanceCurve, self).\
-                     get_empty_figure(*args, **kwds)
+        return super(BinaryClassifierPerformanceCurve, self).get_empty_figure(
+            *args, **kwds
+        )
 
     @classmethod
     def get_friendly_name(cls):
@@ -412,7 +423,7 @@ class BinaryClassifierPerformanceCurve(Curve):
 
 class ROCCurve(BinaryClassifierPerformanceCurve):
     """Class representing a ROC curve.
-    
+
     A ROC curve plots the true positive rate on the Y axis versus
     the false positive rate on the X axis.
     """
@@ -429,8 +440,9 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(ROCCurve, self).__init__(data, BinaryConfusionMatrix.fpr,
-            BinaryConfusionMatrix.tpr)
+        super(ROCCurve, self).__init__(
+            data, BinaryConfusionMatrix.fpr, BinaryConfusionMatrix.tpr
+        )
 
     def auc(self):
         """Constructs the area under the ROC curve by a linear transformation
@@ -447,16 +459,16 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
         constructing the curve itself if you have the positive ranks.
         """
         num_pos = len(ranks)
-        num_neg = float(total-num_pos)
-        sum_pos_ranks = (total+1)*num_pos - sum(ranks)
-        return 1. - sum_pos_ranks / (num_pos*num_neg) + (num_pos+1) / (2*num_neg)
+        num_neg = float(total - num_pos)
+        sum_pos_ranks = (total + 1) * num_pos - sum(ranks)
+        return 1.0 - sum_pos_ranks / (num_pos * num_neg) + (num_pos + 1) / (2 * num_neg)
 
     def get_empty_figure(self, *args, **kwds):
         """Returns an empty `matplotlib.Figure` that can be used
         to show the ROC curve. The arguments of this function are
         passed on intact to the constructor of `matplotlib.Figure`,
         except these (which are interpreted here):
-            
+
             - `title`: the title of the figure.
             - `xlabel`: the label of the X axis.
             - `ylabel`: the label of the Y axis.
@@ -500,7 +512,7 @@ class ROCCurve(BinaryClassifierPerformanceCurve):
 
 class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
     """Class representing a precision-recall curve.
-    
+
     A precision-recall curve plots precision on the Y axis versus
     recall on the X axis.
     """
@@ -517,8 +529,9 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(PrecisionRecallCurve, self).__init__(data,
-            BinaryConfusionMatrix.recall, BinaryConfusionMatrix.precision)
+        super(PrecisionRecallCurve, self).__init__(
+            data, BinaryConfusionMatrix.recall, BinaryConfusionMatrix.precision
+        )
 
     @classmethod
     def get_friendly_name(cls):
@@ -561,7 +574,7 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
             return points[-1]
 
         # Truly interpolating
-        (x1, y1), (x2, y2) = points[pos-1:pos+1]
+        (x1, y1), (x2, y2) = points[pos - 1 : pos + 1]
         # The calculations (spelled out nicely) would be as follows:
         #
         # total_pos = self.data.total_positives
@@ -576,20 +589,18 @@ class PrecisionRecallCurve(BinaryClassifierPerformanceCurve):
         #
         # Now, we recognise that we can divide almost everything with
         # total_pos, leading us to the following implementation:
-        fp_left_over_total_pos  = x1 * (1. - y1) / y1
-        fp_right_over_total_pos = x2 * (1. - y2) / y2
-        r = (x2-x)/float(x2-x1)
-        fp_mid_over_total_pos = (
-                fp_left_over_total_pos * r +
-                fp_right_over_total_pos * (1-r)
+        fp_left_over_total_pos = x1 * (1.0 - y1) / y1
+        fp_right_over_total_pos = x2 * (1.0 - y2) / y2
+        r = (x2 - x) / float(x2 - x1)
+        fp_mid_over_total_pos = fp_left_over_total_pos * r + fp_right_over_total_pos * (
+            1 - r
         )
         return (x, x / (x + fp_mid_over_total_pos))
 
 
-
 class SensitivitySpecificityCurve(BinaryClassifierPerformanceCurve):
     """Class representing a sensitivity-specificity plot.
-    
+
     A sensitivity-specificity curve plots the sensitivity on the Y axis
     versus the specificity on the X axis.
     """
@@ -606,8 +617,9 @@ class SensitivitySpecificityCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(SensitivitySpecificityCurve, self).__init__(data,
-            BinaryConfusionMatrix.tnr, BinaryConfusionMatrix.recall)
+        super(SensitivitySpecificityCurve, self).__init__(
+            data, BinaryConfusionMatrix.tnr, BinaryConfusionMatrix.recall
+        )
 
     @classmethod
     def get_friendly_name(cls):
@@ -618,7 +630,7 @@ class SensitivitySpecificityCurve(BinaryClassifierPerformanceCurve):
 
 class AccumulationCurve(BinaryClassifierPerformanceCurve):
     """Class representing an accumulation curve.
-    
+
     An accumulation curve plots the true positive rate on the Y axis
     versus the fraction of data classified as positive on the X axis.
     """
@@ -635,8 +647,9 @@ class AccumulationCurve(BinaryClassifierPerformanceCurve):
         and ``True`` also means a positive example. The dataset can also
         be an instance of `BinaryClassifierData`.
         """
-        super(AccumulationCurve, self).__init__(data,
-            BinaryConfusionMatrix.fdp, BinaryConfusionMatrix.tpr)
+        super(AccumulationCurve, self).__init__(
+            data, BinaryConfusionMatrix.fdp, BinaryConfusionMatrix.tpr
+        )
 
     @classmethod
     def get_friendly_name(cls):
@@ -647,7 +660,7 @@ class AccumulationCurve(BinaryClassifierPerformanceCurve):
 
 class CROCCurve(BinaryClassifierPerformanceCurve):
     """Class representing a concentrated ROC curve.
-    
+
     A CROC curve plots the true positive rate on the Y axis versus
     the false positive rate on the X axis, but it transforms the X axis
     in order to give more emphasis to the left hand side of the X axis
@@ -656,7 +669,7 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
 
     identifier = "croc"
 
-    def __init__(self, data, alpha = 7):
+    def __init__(self, data, alpha=7):
         """Constructs a CROC curve from the given dataset.
 
         The dataset must contain ``(x, y)`` pairs where `x` is a predicted
@@ -671,8 +684,9 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
         transforms a FPR of 0.1 to 0.5.
         """
         self._transformation = ExponentialTransformation(alpha)
-        super(CROCCurve, self).__init__(data, self._transformed_fpr,
-            BinaryConfusionMatrix.tpr)
+        super(CROCCurve, self).__init__(
+            data, self._transformed_fpr, BinaryConfusionMatrix.tpr
+        )
 
     def auc(self):
         """Constructs the area under the ROC curve by the average of the
@@ -689,12 +703,12 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
         """
         pos_count = len(pos_ranks)
         neg_count = float(total - pos_count)
-        if neg_count == 0.:
-            return 1.
+        if neg_count == 0.0:
+            return 1.0
 
         trans = self._transformation
-        fprs = [1. - (rank-i-1) / neg_count for i, rank in enumerate(pos_ranks)]
-        return 1. - sum(trans(fprs)) / pos_count
+        fprs = [1.0 - (rank - i - 1) / neg_count for i, rank in enumerate(pos_ranks)]
+        return 1.0 - sum(trans(fprs)) / pos_count
 
     @axis_label("Transformed false positive rate")
     def _transformed_fpr(self, matrix):
@@ -707,7 +721,7 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
         to show the ROC curve. The arguments of this function are
         passed on intact to the constructor of `matplotlib.Figure`,
         except these (which are interpreted here):
-            
+
             - `title`: the title of the figure.
             - `xlabel`: the label of the X axis.
             - `ylabel`: the label of the Y axis.
@@ -734,7 +748,7 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
 
         # Plot the no-discrimination curve
         if no_discrimination_curve:
-            ys = [y / 100. for y in xrange(101)]
+            ys = [y / 100.0 for y in xrange(101)]
             xs = [self._transformation(y) for y in ys]
             if isinstance(no_discrimination_curve, (tuple, list)):
                 color, linestyle = no_discrimination_curve
@@ -785,13 +799,13 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
             (x1, y1), (x2, y2) = points[-2:]
         else:
             # Truly interpolating
-            (x1, y1), (x2, y2) = points[pos-1:pos+1]
+            (x1, y1), (x2, y2) = points[pos - 1 : pos + 1]
 
         trans_inv = self._transformation.inverse
 
         fpr1, fpr2, fpr_mid = trans_inv(x1), trans_inv(x2), trans_inv(x)
-        r = (fpr2-fpr_mid)/(fpr2-fpr1)
-        return (x, y1 * r + y2 * (1-r))
+        r = (fpr2 - fpr_mid) / (fpr2 - fpr1)
+        return (x, y1 * r + y2 * (1 - r))
 
     @classmethod
     def get_friendly_name(cls):
@@ -802,7 +816,7 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
 
 class FScoreCurve(BinaryClassifierPerformanceCurve):
     """Class representing an F-score curve.
-    
+
     An F-score curve plots the F-score on the Y axis versus the fraction
     of data classified as positive on the X axis.
     """
@@ -824,12 +838,14 @@ class FScoreCurve(BinaryClassifierPerformanceCurve):
         to precision and recall. In general, recall is considered `f` times more
         important than precision.
         """
+
         @axis_label("F-score")
         def f_score(matrix):
             """Internal function that binds the `f` parameter of
             `BinaryConfusionMatrix.f_score` to the value specified in the constructor.
             """
             return BinaryConfusionMatrix.f_score(matrix, f)
+
         super(FScoreCurve, self).__init__(data, BinaryConfusionMatrix.fdp, f_score)
 
     @classmethod
@@ -837,6 +853,3 @@ class FScoreCurve(BinaryClassifierPerformanceCurve):
         """Returns a human-readable name of the curve that can be
         used in messages."""
         return "F-score curve"
-
-
-

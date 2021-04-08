@@ -6,20 +6,22 @@ try:
     from itertools import izip_longest
 except:
     from itertools import zip_longest
+
     izip_longest = zip_longest
 
 from textwrap import dedent
 
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 
+
 class BinaryConfusionMatrixTest(unittest.TestCase):
     def setUp(self):
-        self.matrices = [\
+        self.matrices = [
             BinaryConfusionMatrix(tp=63, fp=28, fn=37, tn=72),
             BinaryConfusionMatrix(tp=77, fp=77, fn=23, tn=23),
             BinaryConfusionMatrix(tp=24, fp=88, fn=76, tn=12),
             BinaryConfusionMatrix(data=[[88, 24], [12, 76]]),
-            BinaryConfusionMatrix(tp=100, fp=0, fn=0, tn=100)
+            BinaryConfusionMatrix(tp=100, fp=0, fn=0, tn=100),
         ]
 
     def test_fdn(self):
@@ -61,17 +63,19 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
 
 class BinaryClassifierDataTest(unittest.TestCase):
     def setUp(self):
-        self.data = BinaryClassifierData([\
-            (0.1, 0),
-            (0.2, 0),
-            (0.3, 0),
-            (0.4, 1),
-            (0.5, 0),
-            (0.6, 1),
-            (0.7, 1),
-            (0.8, 1),
-            (0.9, 1)
-        ])
+        self.data = BinaryClassifierData(
+            [
+                (0.1, 0),
+                (0.2, 0),
+                (0.3, 0),
+                (0.4, 1),
+                (0.5, 0),
+                (0.6, 1),
+                (0.7, 1),
+                (0.8, 1),
+                (0.9, 1),
+            ]
+        )
 
     def test_get_confusion_matrix(self):
         mat = self.data.get_confusion_matrix(0.2)
@@ -95,10 +99,12 @@ class BinaryClassifierDataTest(unittest.TestCase):
         tp=2, fp=0, fn=3, tn=4
         tp=1, fp=0, fn=4, tn=4
         tp=0, fp=0, fn=5, tn=4"""
-        expected = ["BinaryConfusionMatrix(%s)" % line \
-                    for line in dedent(expected).split("\n")]
-        for (threshold, matrix), expected in \
-                izip_longest(self.data.iter_confusion_matrices(), expected):
+        expected = [
+            "BinaryConfusionMatrix(%s)" % line for line in dedent(expected).split("\n")
+        ]
+        for (threshold, matrix), expected in izip_longest(
+            self.data.iter_confusion_matrices(), expected
+        ):
             self.assertEqual(repr(matrix), expected)
             self.assertEqual(matrix, self.data.get_confusion_matrix(threshold))
 
@@ -108,15 +114,16 @@ class BinaryClassifierDataTest(unittest.TestCase):
         tp=4, fp=1, fn=1, tn=3
         tp=2, fp=0, fn=3, tn=4
         tp=0, fp=0, fn=5, tn=4"""
-        expected = ["BinaryConfusionMatrix(%s)" % line \
-                    for line in dedent(expected).split("\n")]
-        for (threshold, matrix), expected in \
-                izip_longest(self.data.iter_confusion_matrices(4), expected):
+        expected = [
+            "BinaryConfusionMatrix(%s)" % line for line in dedent(expected).split("\n")
+        ]
+        for (threshold, matrix), expected in izip_longest(
+            self.data.iter_confusion_matrices(4), expected
+        ):
             self.assertEqual(repr(matrix), expected)
             self.assertEqual(matrix, self.data.get_confusion_matrix(threshold))
 
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner(verbosity = 2)
-    unittest.main(testRunner = runner)
-
+    runner = unittest.TextTestRunner(verbosity=2)
+    unittest.main(testRunner=runner)

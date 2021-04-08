@@ -7,10 +7,11 @@ from yard.data import BinaryClassifierData
 from yard.curve import CurveFactory
 from yard.scripts import CommandLineAppForClassifierData
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
+
 
 class AUCCalculatorApplication(CommandLineAppForClassifierData):
     """\
@@ -37,12 +38,18 @@ class AUCCalculatorApplication(CommandLineAppForClassifierData):
 
         parser = self.parser
 
-        parser.add_option("-t", "--curve-type", dest="curve_types",
-                metavar="TYPE", choices=CurveFactory.get_curve_names(),
-                action="append", default=[],
-                help="sets the TYPE of the curve to be plotted "
-                     "(roc, pr, ac, sespe or croc). May be specified "
-                     "multiple times.")
+        parser.add_option(
+            "-t",
+            "--curve-type",
+            dest="curve_types",
+            metavar="TYPE",
+            choices=CurveFactory.get_curve_names(),
+            action="append",
+            default=[],
+            help="sets the TYPE of the curve to be plotted "
+            "(roc, pr, ac, sespe or croc). May be specified "
+            "multiple times.",
+        )
 
     def run_real(self):
         """Runs the main application"""
@@ -86,9 +93,11 @@ class AUCCalculatorApplication(CommandLineAppForClassifierData):
             print("  AUC[%s] = %.4f" % (key, auc))
         print("")
 
+
 def main():
     """Entry point for the plotter script"""
     sys.exit(AUCCalculatorApplication().run())
+
 
 if __name__ == "__main__":
     main()

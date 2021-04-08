@@ -23,10 +23,11 @@ try:
 except NameError:
     xrange = range
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
+
 
 class CommandLineApp(object):
     """Generic command line application class"""
@@ -42,11 +43,21 @@ class CommandLineApp(object):
         """Creates a command line parser for the application"""
         doc = self.__class__.__doc__
         parser = OptionParser(usage=dedent(doc).strip())
-        parser.add_option("-q", "--quiet", dest="verbose",
-                default=True, action="store_false",
-                help="quiet output (logs only warnings)")
-        parser.add_option("-d", "--debug", dest="debug",
-                action="store_true", help="show debug messages")
+        parser.add_option(
+            "-q",
+            "--quiet",
+            dest="verbose",
+            default=True,
+            action="store_false",
+            help="quiet output (logs only warnings)",
+        )
+        parser.add_option(
+            "-d",
+            "--debug",
+            dest="debug",
+            action="store_true",
+            help="show debug messages",
+        )
         return parser
 
     def add_parser_options(self):
@@ -94,7 +105,7 @@ class CommandLineApp(object):
 class CommandLineAppForClassifierData(CommandLineApp):
     """Subclass of `CommandLineApp` that adds the usual command line options
     for processing tabular classifier data.
-    
+
     This class can be used as a base class for applications that work from
     flat files containing classifier outputs in columns.
     """
@@ -108,20 +119,29 @@ class CommandLineAppForClassifierData(CommandLineApp):
         """Adds the usual command line parse options for command line scripts
         working with tabular classifier data."""
         parser = self.parser
-        parser.add_option("-c", "--columns", dest="columns", metavar="COLUMNS",
-                help="use the given COLUMNS from the input file. Column indices "\
-                     "are separated by commas. The first index specifies the "\
-                     "column containing the class of the datapoint (positive "\
-                     "or negative), the remaining indices specify predictions "\
-                     "according to various prediction methods. If the class "\
-                     "column does not contain a numeric value, the whole row "\
-                     "is considered as a header.",
-                default=None)
-        parser.add_option("-f", "--field-separator", dest="sep",
-                metavar="CHAR",
-                help="use the given separator CHARacter between columns. "\
-                     "If omitted, all whitespace characters are separators.",
-                default=None)
+        parser.add_option(
+            "-c",
+            "--columns",
+            dest="columns",
+            metavar="COLUMNS",
+            help="use the given COLUMNS from the input file. Column indices "
+            "are separated by commas. The first index specifies the "
+            "column containing the class of the datapoint (positive "
+            "or negative), the remaining indices specify predictions "
+            "according to various prediction methods. If the class "
+            "column does not contain a numeric value, the whole row "
+            "is considered as a header.",
+            default=None,
+        )
+        parser.add_option(
+            "-f",
+            "--field-separator",
+            dest="sep",
+            metavar="CHAR",
+            help="use the given separator CHARacter between columns. "
+            "If omitted, all whitespace characters are separators.",
+            default=None,
+        )
 
     @staticmethod
     def parse_column_indices(indices):
@@ -135,9 +155,9 @@ class CommandLineAppForClassifierData(CommandLineApp):
         for part in parts:
             if "-" in part:
                 start, end = [int(idx) for idx in part.split("-", 1)]
-                result.extend(xrange(start-1, end))
+                result.extend(xrange(start - 1, end))
             else:
-                result.append(int(part)-1)
+                result.append(int(part) - 1)
         return result
 
     def process_options(self):
@@ -149,7 +169,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
         # Process self.options.sep
         sep = self.options.sep
         if sep is not None:
-            if len(sep) == 2 and sep[0] == '\\':
+            if len(sep) == 2 and sep[0] == "\\":
                 sep = eval(r'"%s"' % sep)
             elif len(sep) != 1:
                 self.parser.error("Column separator must be a single character")
@@ -162,7 +182,9 @@ class CommandLineAppForClassifierData(CommandLineApp):
             try:
                 self.cols = self.parse_column_indices(self.cols)
             except ValueError:
-                self.parser.error("Format error in column specification: %r" % self.cols)
+                self.parser.error(
+                    "Format error in column specification: %r" % self.cols
+                )
             if len(self.cols) == 1:
                 self.parser.error("Must specify at least two column indices")
             if min(self.cols) < 0:
@@ -257,4 +279,3 @@ class CommandLineAppForClassifierData(CommandLineApp):
 
         if len(self.data) == 0:
             self.parser.error("No data columns in input file")
-

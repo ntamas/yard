@@ -9,10 +9,11 @@ ordinary ROC, AC and PR curves.
 from math import exp
 from yard.mathematics import log, power
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
+
 
 class ExponentialTransformation(object):
     """Exponential transformation object.
@@ -23,7 +24,7 @@ class ExponentialTransformation(object):
     `x=0` while keeping `x=1` in-place.
     """
 
-    def __init__(self, alpha = 7):
+    def __init__(self, alpha=7):
         """Constructs an exponential transformation with the given
         `alpha` value. The default `alpha`=7 maps 0.1 approximately
         to 0.5."""
@@ -35,17 +36,17 @@ class ExponentialTransformation(object):
         """
         alpha = self.exp_minus_alpha - 1
         if hasattr(y, "__iter__"):
-            y = [i*alpha+1 for i in y]
+            y = [i * alpha + 1 for i in y]
             return log(y)
-        return log(y*alpha+1)
+        return log(y * alpha + 1)
 
     def transform(self, x):
         """Transforms the given number `x` and returns
         `(1-exp(-alpha*x)) / (1-exp(-alpha))`."""
-        den = 1-self.exp_minus_alpha
+        den = 1 - self.exp_minus_alpha
         if hasattr(x, "__iter__"):
             x = power(self.exp_minus_alpha, x)
-            return [(1-value)/den for value in x]
-        return (1-self.exp_minus_alpha**x) / den
+            return [(1 - value) / den for value in x]
+        return (1 - self.exp_minus_alpha ** x) / den
 
     __call__ = transform

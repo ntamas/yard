@@ -11,10 +11,11 @@ try:
 except NameError:
     xrange = range
 
-__author__  = "Tamas Nepusz"
-__email__   = "tamas@cs.rhul.ac.uk"
+__author__ = "Tamas Nepusz"
+__email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
 __license__ = "MIT"
+
 
 class SignificanceTest(object):
     """Abstract class that defines the interface of significance
@@ -31,8 +32,7 @@ class SignificanceTest(object):
         if not hasattr(curve_factory, "__call__"):
             raise TypeError("curve_factory must be callable")
         if not hasattr(curve_factory, "auc_from_pos_ranks"):
-            raise TypeError("curve_factory must have an auc_from_pos_ranks "
-                            "method")
+            raise TypeError("curve_factory must have an auc_from_pos_ranks " "method")
 
         self.curve_factory = curve_factory
 
@@ -84,8 +84,7 @@ class PairedPermutationTest(SignificanceTest):
         ranks2 = data2.get_positive_ranks()
         m = len(ranks1)
         if m != len(ranks2):
-            raise ValueError("the two datasets must have the same "
-                             "positive examples")
+            raise ValueError("the two datasets must have the same " "positive examples")
 
         dummy_curve = self.curve_factory([])
         auc_from_ranks = dummy_curve.auc_from_pos_ranks
@@ -105,4 +104,3 @@ class PairedPermutationTest(SignificanceTest):
                 num_success += 1
 
         return observed_diff, num_success / float(self.num_repetitions)
-
