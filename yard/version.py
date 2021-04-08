@@ -1,1 +1,3 @@
-__version__ = "0.2.4"
+__version_info__ = (0, 3, 0)
+__version__ = ".".join("{0}".format(x) for x in __version_info__)
+
