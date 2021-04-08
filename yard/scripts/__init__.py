@@ -18,11 +18,6 @@ from collections import defaultdict
 from optparse import OptionParser
 from textwrap import dedent
 
-try:
-    xrange
-except NameError:
-    xrange = range
-
 __author__ = "Tamas Nepusz"
 __email__ = "tamas@cs.rhul.ac.uk"
 __copyright__ = "Copyright (c) 2010, Tamas Nepusz"
@@ -155,7 +150,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
         for part in parts:
             if "-" in part:
                 start, end = [int(idx) for idx in part.split("-", 1)]
-                result.extend(xrange(start - 1, end))
+                result.extend(range(start - 1, end))
             else:
                 result.append(int(part) - 1)
         return result
@@ -206,7 +201,7 @@ class CommandLineAppForClassifierData(CommandLineApp):
         if cols is not None:
             # Prepare ncols and headers in advance here
             ncols = len(cols)
-            headers = ["Dataset %d" % idx for idx in xrange(ncols)]
+            headers = ["Dataset %d" % idx for idx in range(ncols)]
             headers[0] = "__class__"
 
         for line in stream:
@@ -254,11 +249,11 @@ class CommandLineAppForClassifierData(CommandLineApp):
                 if cols is None:
                     cols = range(len(parts))
                     ncols = len(parts)
-                    headers = ["Dataset %d" % idx for idx in xrange(ncols)]
+                    headers = ["Dataset %d" % idx for idx in range(ncols)]
                     headers[0] = "__class__"
 
             # This is a data row
-            for i in xrange(ncols):
+            for i in range(ncols):
                 self.data[headers[i]].append(float(parts[cols[i]]))
 
     def process_input_files(self):

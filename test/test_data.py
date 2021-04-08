@@ -2,13 +2,7 @@
 
 import unittest
 
-try:
-    from itertools import izip_longest
-except:
-    from itertools import zip_longest
-
-    izip_longest = zip_longest
-
+from itertools import zip_longest
 from textwrap import dedent
 
 from yard.data import BinaryConfusionMatrix, BinaryClassifierData
@@ -102,7 +96,7 @@ class BinaryClassifierDataTest(unittest.TestCase):
         expected = [
             "BinaryConfusionMatrix(%s)" % line for line in dedent(expected).split("\n")
         ]
-        for (threshold, matrix), expected in izip_longest(
+        for (threshold, matrix), expected in zip_longest(
             self.data.iter_confusion_matrices(), expected
         ):
             self.assertEqual(repr(matrix), expected)
@@ -117,7 +111,7 @@ class BinaryClassifierDataTest(unittest.TestCase):
         expected = [
             "BinaryConfusionMatrix(%s)" % line for line in dedent(expected).split("\n")
         ]
-        for (threshold, matrix), expected in izip_longest(
+        for (threshold, matrix), expected in zip_longest(
             self.data.iter_confusion_matrices(4), expected
         ):
             self.assertEqual(repr(matrix), expected)

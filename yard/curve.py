@@ -22,16 +22,6 @@ from yard.data import BinaryConfusionMatrix, BinaryClassifierData
 from yard.transform import ExponentialTransformation
 from yard.utils import axis_label, itersubclasses
 
-try:
-    from itertools import izip
-except ImportError:
-    izip = zip
-
-try:
-    xrange
-except NameError:
-    xrange = range
-
 
 class Curve(object):
     """Class representing an arbitrary curve on a 2D space.
@@ -56,7 +46,7 @@ class Curve(object):
         points = self.points
         auc = sum(
             (y0 + y1) / 2.0 * (x1 - x0)
-            for (x0, y0), (x1, y1) in izip(points, points[1:])
+            for (x0, y0), (x1, y1) in zip(points, points[1:])
         )
         return auc
 
@@ -98,7 +88,7 @@ class Curve(object):
         k = int(kwds["until"])
         n = len(points)
         step = (n - 1) / (k - 1.0)
-        result = [points[int(idx * step)] for idx in xrange(1, k - 1)]
+        result = [points[int(idx * step)] for idx in range(1, k - 1)]
         result.append(points[-1])
         self._points = result
 
@@ -748,7 +738,7 @@ class CROCCurve(BinaryClassifierPerformanceCurve):
 
         # Plot the no-discrimination curve
         if no_discrimination_curve:
-            ys = [y / 100.0 for y in xrange(101)]
+            ys = [y / 100.0 for y in range(101)]
             xs = [self._transformation(y) for y in ys]
             if isinstance(no_discrimination_curve, (tuple, list)):
                 color, linestyle = no_discrimination_curve
