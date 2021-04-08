@@ -33,7 +33,7 @@ Requirements
 
 You will need the following tools to run ``yard``:
 
-* `Python 2.6`_ or later.
+* `Python 3.7`_ or later.
 
 * `Matplotlib`_, which is responsible for plotting the curves. If
   you don't have `Matplotlib`_, you can export the points of the
@@ -44,7 +44,7 @@ You will need the following tools to run ``yard``:
   slightly faster if you have `NumPy`_, but ``yard`` should work
   fine without it as well.
 
-.. _Python 2.6: http://www.python.org
+.. _Python 3.7: http://www.python.org
 .. _Matplotlib: http://matplotlib.sourceforge.net
 .. _GNUPlot: http:/www.gnuplot.info
 .. _NumPy: http://numpy.scipy.org
@@ -52,14 +52,14 @@ You will need the following tools to run ``yard``:
 Installation
 ------------
 
-The simplest way to install ``yard`` is by using ``easy_install``::
+The simplest way to install ``yard`` is by using ``pip``::
 
-    $ easy_install yard
+    $ pip install yard
 
 This goes to the `Python package index`_ page, fetches the most recent
 stable version and installs it, creating two scripts in your path:
-``yard-plot`` for plotting and ``yard-significance`` for significance
-testing.
+``yard-auc`` for AUC score calculation, ``yard-plot`` for plotting and
+``yard-significance`` for significance testing.
 
 If you want the bleeding edge version, you should go to the GitHub_
 page, download a ZIP or .tar.gz file, extract it to some directory

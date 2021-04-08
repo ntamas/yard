@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "yard"
+version = "0.2.4"
+description = "Yet another ROC curve drawer"
+authors = ["Tamas Nepusz <ntamas@gmail.com>"]
+license = "MIT"
+readme = "README.rst"
+repository = "https://github.com/ntamas/yard"
+keywords = ["roc curve", "statistics", "mathematics", "machine learning", "auc"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Utilities"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+matplotlib = {version = "^3.4.1", optional = true}
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.extras]
+plotting = ["matplotlib"]
+
+[tool.poetry.scripts]
+yard-auc = "yard.scripts.auc:main"
+yard-plot = "yard.scripts.plot:main"
+yard-significance = "yard.scripts.significance:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
