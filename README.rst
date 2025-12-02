@@ -33,7 +33,7 @@ Requirements
 
 You will need the following tools to run ``yard``:
 
-* `Python 3.7`_ or later.
+* `Python 3.10`_ or later.
 
 * `Matplotlib`_, which is responsible for plotting the curves. If
   you don't have `Matplotlib`_, you can export the points of the
@@ -44,7 +44,7 @@ You will need the following tools to run ``yard``:
   slightly faster if you have `NumPy`_, but ``yard`` should work
   fine without it as well.
 
-.. _Python 3.7: http://www.python.org
+.. _Python 3.10: http://www.python.org
 .. _Matplotlib: http://matplotlib.sourceforge.net
 .. _GNUPlot: http:/www.gnuplot.info
 .. _NumPy: http://numpy.scipy.org
